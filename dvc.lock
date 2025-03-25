@@ -30,12 +30,10 @@ stages:
       hash: md5
       md5: c8ff5cb8f76d2b90cc38d4dde3d0441d
       size: 78
-      isexec: true
     - path: scripts/split_data.py
       hash: md5
       md5: 6e6ce2f275fd4b31735e72d9fcffcee4
       size: 1072
-      isexec: true
     outs:
     - path: data/train_test_data/test.pkl
       hash: md5
@@ -60,14 +58,12 @@ stages:
       hash: md5
       md5: c8ff5cb8f76d2b90cc38d4dde3d0441d
       size: 78
-      isexec: true
     - path: scripts/eval_model.py
       hash: md5
       md5: 58307addf5ae14ae3fd5f70d71634659
       size: 1037
-      isexec: true
     outs:
     - path: metrics.json
       hash: md5
-      md5: e077c0257a2db655792582fe25aa3595
+      md5: 6186c4f15bb4c99349ec318aa10d5414
       size: 34
