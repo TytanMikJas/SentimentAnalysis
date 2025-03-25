@@ -5,7 +5,7 @@ from sklearn.metrics import f1_score
 from src.utils import load_train_test_data, save_f1_score
 
 
-def eval_model(path_to_split_data, strategy, metrics_path):
+def eval_model(path_to_split_data, strategy, metrics_file):
     training_data, test_data = load_train_test_data(path_to_split_data)
 
     X_train = training_data.drop(columns=["LABEL-rating"])
@@ -20,7 +20,7 @@ def eval_model(path_to_split_data, strategy, metrics_path):
 
     f1_scores = f1_score(y_test, y_hat, average="weighted")
 
-    save_f1_score(f1_scores, metrics_path)
+    save_f1_score(f1_scores, metrics_file)
 
 
 if __name__ == "__main__":
@@ -30,5 +30,5 @@ if __name__ == "__main__":
         params = yaml.safe_load(file)
 
     strategy = params["model"]["strategy"]
-    metrics_path = sys.argv[3]
-    eval_model(path_to_split_data, strategy, metrics_path)
+    metrics_file = sys.argv[3]
+    eval_model(path_to_split_data, strategy, metrics_file)

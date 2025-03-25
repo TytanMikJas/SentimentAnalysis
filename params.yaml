@@ -1,6 +1,6 @@
 split_data:
   test_size: 0.2
-  stratify: true
+  stratify: True
 
 model:
   strategy: uniform

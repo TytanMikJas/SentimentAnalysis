@@ -31,12 +31,12 @@ def load_raw_data(path_to_raw_data: str):
 
 def save_dataset(df: pd.DataFrame, path_to_processed_data: str):
     logging.info("Saving dataset")
-    df.to_pickle(os.path.join(path_to_processed_data, "dataset.pkl"))
+    df.to_pickle(os.path.join(path_to_processed_data))
 
 
 def load_dataset(path_to_processed_data: str):
     logging.info("Loading dataset")
-    return pd.read_pickle(os.path.join(path_to_processed_data, "dataset.pkl"))
+    return pd.read_pickle(os.path.join(path_to_processed_data))
 
 
 def save_train_test_data(
@@ -49,12 +49,13 @@ def save_train_test_data(
 
 def load_train_test_data(path_to_split_data: str):
     logging.info("Loading train and test data")
+    os.makedirs(path_to_split_data, exist_ok=True)
     training_data = pd.read_pickle(os.path.join(path_to_split_data, "train.pkl"))
     test_data = pd.read_pickle(os.path.join(path_to_split_data, "test.pkl"))
     return training_data, test_data
 
 
-def save_f1_score(f1_scores: list, metrics_path: str):
+def save_f1_score(f1_scores: list, metrics_file: str):
     logging.info("Saving f1 scores")
-    with open(os.path.join(metrics_path, "metrics.json"), "w") as f:
+    with open(os.path.join(metrics_file), "w") as f:
         json.dump({"f1_scores": f1_scores}, f)
