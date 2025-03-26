@@ -12,7 +12,9 @@ stages:
     deps:
       - scripts/split_data.py
       - data/processed_data/dataset.pkl
-      - params.yaml
+    params:
+      - split_data.test_size
+      - split_data.stratify
     outs:
       - data/train_test_data/train.pkl
       - data/train_test_data/test.pkl
@@ -23,6 +25,8 @@ stages:
       - scripts/eval_model.py
       - data/train_test_data/train.pkl
       - data/train_test_data/test.pkl
-      - params.yaml
+    params:
+      - model.strategy
     metrics:
-      - metrics.json
+      - metrics.json:
+          cache: false

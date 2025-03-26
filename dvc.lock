@@ -26,14 +26,14 @@ stages:
       hash: md5
       md5: 2c2fbedf392f7aa0dc3ff21c80d46c16
       size: 409854459
-    - path: params.yaml
-      hash: md5
-      md5: c8ff5cb8f76d2b90cc38d4dde3d0441d
-      size: 78
     - path: scripts/split_data.py
       hash: md5
-      md5: 6e6ce2f275fd4b31735e72d9fcffcee4
-      size: 1072
+      md5: 5b0c8989b1e582dba631770057d15e27
+      size: 1074
+    params:
+      params.yaml:
+        split_data.stratify: true
+        split_data.test_size: 0.2
     outs:
     - path: data/train_test_data/test.pkl
       hash: md5
@@ -54,16 +54,15 @@ stages:
       hash: md5
       md5: 836dea7acb93100ee152c0ac1737ddbb
       size: 335273334
-    - path: params.yaml
-      hash: md5
-      md5: c8ff5cb8f76d2b90cc38d4dde3d0441d
-      size: 78
     - path: scripts/eval_model.py
       hash: md5
-      md5: 58307addf5ae14ae3fd5f70d71634659
-      size: 1037
+      md5: 3c9e585c5b5be38339a94d5b255d51df
+      size: 1039
+    params:
+      params.yaml:
+        model.strategy: uniform
     outs:
     - path: metrics.json
       hash: md5
-      md5: 6186c4f15bb4c99349ec318aa10d5414
+      md5: c385531c0ccee63bc5ca64f38456232b
       size: 34

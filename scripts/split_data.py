@@ -25,7 +25,7 @@ if __name__ == "__main__":
     path_to_processed_data = sys.argv[1]
     path_to_split_data = sys.argv[2]
 
-    with open(sys.argv[3], "r") as file:
+    with open('params.yaml', "r") as file:
         params = yaml.safe_load(file)
 
     test_size = params["split_data"]["test_size"]
