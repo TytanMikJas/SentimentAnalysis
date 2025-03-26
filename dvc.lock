@@ -1,0 +1,68 @@
+schema: '2.0'
+stages:
+  process_data:
+    cmd: python scripts/process_data.py data/raw_data data/processed_data/dataset.pkl
+    deps:
+    - path: data/raw_data
+      hash: md5
+      md5: 1879a37ccfe89870a8e73238e331f4ac.dir
+      size: 524018363
+      nfiles: 6
+    - path: scripts/process_data.py
+      hash: md5
+      md5: 7dc8b5ec774bd3d9def2ee125c9d56f7
+      size: 1243
+      isexec: true
+    outs:
+    - path: data/processed_data/dataset.pkl
+      hash: md5
+      md5: 2c2fbedf392f7aa0dc3ff21c80d46c16
+      size: 409854459
+  split_data:
+    cmd: python scripts/split_data.py data/processed_data/dataset.pkl data/train_test_data
+      params.yaml
+    deps:
+    - path: data/processed_data/dataset.pkl
+      hash: md5
+      md5: 2c2fbedf392f7aa0dc3ff21c80d46c16
+      size: 409854459
+    - path: scripts/split_data.py
+      hash: md5
+      md5: 5b0c8989b1e582dba631770057d15e27
+      size: 1074
+    params:
+      params.yaml:
+        split_data.stratify: true
+        split_data.test_size: 0.2
+    outs:
+    - path: data/train_test_data/test.pkl
+      hash: md5
+      md5: 60fa78b2985e3a50e1c6bc7e92305846
+      size: 84311785
+    - path: data/train_test_data/train.pkl
+      hash: md5
+      md5: 836dea7acb93100ee152c0ac1737ddbb
+      size: 335273334
+  eval_model:
+    cmd: python scripts/eval_model.py data/train_test_data params.yaml metrics.json
+    deps:
+    - path: data/train_test_data/test.pkl
+      hash: md5
+      md5: 60fa78b2985e3a50e1c6bc7e92305846
+      size: 84311785
+    - path: data/train_test_data/train.pkl
+      hash: md5
+      md5: 836dea7acb93100ee152c0ac1737ddbb
+      size: 335273334
+    - path: scripts/eval_model.py
+      hash: md5
+      md5: 3c9e585c5b5be38339a94d5b255d51df
+      size: 1039
+    params:
+      params.yaml:
+        model.strategy: uniform
+    outs:
+    - path: metrics.json
+      hash: md5
+      md5: c385531c0ccee63bc5ca64f38456232b
+      size: 34
