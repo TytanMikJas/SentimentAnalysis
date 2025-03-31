@@ -12,3 +12,4 @@ pyyaml==6.0.2
 dvc[gdrive]==3.59.1
 nltk==3.9.1
 papermill==2.6.0
+wandb==0.19.8

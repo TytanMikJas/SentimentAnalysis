@@ -55,40 +55,40 @@ stages:
       params.yaml:
         split_data.label_column: LABEL-rating
         split_data.stratify: true
-        split_data.test_size: 0.2
+        split_data.test_size: 0.15
     outs:
     - path: data/train_test_data/test.pkl
       hash: md5
-      md5: 3e4722cec99a4509d58272325d63ca1d
-      size: 128753262
+      md5: 76a593ad95fb31430f64635f303cd3a6
+      size: 97076559
     - path: data/train_test_data/train.pkl
       hash: md5
-      md5: 611ece66f46dab925203529918e0c1ff
-      size: 507590629
+      md5: 9928efef66adb2259ade07bc16c0a8cf
+      size: 539100210
   eval_model:
     cmd: python scripts/eval_model.py data/train_test_data params.yaml metrics.json
     deps:
     - path: data/train_test_data/test.pkl
       hash: md5
-      md5: 3e4722cec99a4509d58272325d63ca1d
-      size: 128753262
+      md5: 76a593ad95fb31430f64635f303cd3a6
+      size: 97076559
     - path: data/train_test_data/train.pkl
       hash: md5
-      md5: 611ece66f46dab925203529918e0c1ff
-      size: 507590629
+      md5: 9928efef66adb2259ade07bc16c0a8cf
+      size: 539100210
     - path: scripts/eval_model.py
       hash: md5
-      md5: aedb322ee5a6ea14e4b7c8a5babb88b9
-      size: 1039
+      md5: f85e658b129edf2969d82d2c83eac714
+      size: 2200
       isexec: true
     params:
       params.yaml:
-        model.strategy: uniform
+        model.strategy: most_frequent
     outs:
     - path: metrics.json
       hash: md5
-      md5: 922cd70a93241e8e86cbcb3e949a4083
-      size: 32
+      md5: 3da9e5100166b06d83a804ba0b0eb81f
+      size: 33
   execute_notebook:
     cmd: papermill notebooks/Lab4.ipynb data/processed_data/Lab4.ipynb
     deps:
