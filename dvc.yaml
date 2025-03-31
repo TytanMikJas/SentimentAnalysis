@@ -7,8 +7,18 @@ stages:
     params:
       - process_data.review_text_column
       - process_data.cols_to_delete
+      - process_data.cols_to_fix
     outs:
       - data/processed_data/dataset.pkl
+
+  execute_notebook:
+    cmd: papermill notebooks/Lab4.ipynb data/processed_data/Lab4.ipynb
+    deps:
+      - notebooks/Lab4.ipynb
+      - data/processed_data/dataset.pkl
+    outs:
+      - data/processed_data/Lab4.ipynb:
+          cache: false
 
   split_data:
     cmd: python scripts/split_data.py data/processed_data/dataset.pkl data/train_test_data params.yaml

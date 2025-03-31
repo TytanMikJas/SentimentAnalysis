@@ -8,6 +8,9 @@ model:
 
 process_data:
   review_text_column: review_text
+  cols_to_fix:
+    - total_feedback_count
+    - total_pos_feedback_count
   cols_to_delete:
     - product_id
     - brand_id
@@ -21,3 +24,4 @@ process_data:
     - skin_type
     - hair_color
     - product_id
+    - "Unnamed: 0"

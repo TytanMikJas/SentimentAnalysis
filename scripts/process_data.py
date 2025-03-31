@@ -24,8 +24,20 @@ def create_new_attributes(df, review_text_column):
     return df
 
 
+def fix_column_types_to_numeric(df, cols_to_fix):
+    for col in cols_to_fix:
+        df[col] = pd.to_numeric(df[col], errors="coerce").fillna(0).astype(int)
+        df[col] = pd.to_numeric(df[col], errors="coerce").fillna(0).astype(int)
+
+    return df
+
+
 def process_data(
-    path_to_raw_data, path_to_processed_data, cols_to_delete, review_text_column
+    path_to_raw_data,
+    path_to_processed_data,
+    cols_to_delete,
+    review_text_column,
+    cols_to_fix,
 ):
     reviews_df, product_info_df = load_raw_data(path_to_raw_data)
 
@@ -33,6 +45,8 @@ def process_data(
     df = df.drop(columns=[col for col in df.columns if col.endswith("_drop")])
 
     df = df.drop(columns=cols_to_delete, errors="ignore")
+
+    df = fix_column_types_to_numeric(df, cols_to_fix)
 
     df = create_new_attributes(df, review_text_column)
 
@@ -51,4 +65,5 @@ if __name__ == "__main__":
         path_to_processed_data,
         params["process_data"]["cols_to_delete"],
         params["process_data"]["review_text_column"],
+        params["process_data"]["cols_to_fix"],
     )
