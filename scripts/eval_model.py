@@ -26,7 +26,7 @@ def eval_model(path_to_split_data, strategy, metrics_file):
 if __name__ == "__main__":
     path_to_split_data = sys.argv[1]
 
-    with open('params.yaml', "r") as file:
+    with open("params.yaml", "r") as file:
         params = yaml.safe_load(file)
 
     strategy = params["model"]["strategy"]

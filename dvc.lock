@@ -10,59 +10,78 @@ stages:
       nfiles: 6
     - path: scripts/process_data.py
       hash: md5
-      md5: 7dc8b5ec774bd3d9def2ee125c9d56f7
-      size: 1243
+      md5: 68cfc96e81d1bb01f548b096af85b463
+      size: 1509
       isexec: true
+    params:
+      params.yaml:
+        process_data.cols_to_delete:
+        - product_id
+        - brand_id
+        - variation_type
+        - variation_value
+        - variation_desc
+        - author_id
+        - submission_time
+        - skin_tone
+        - eye_color
+        - skin_type
+        - hair_color
+        - product_id
+        process_data.review_text_column: review_text
     outs:
     - path: data/processed_data/dataset.pkl
       hash: md5
-      md5: 2c2fbedf392f7aa0dc3ff21c80d46c16
-      size: 409854459
+      md5: a2d78199c72541fdf41b0c08d7766b4e
+      size: 618840922
   split_data:
     cmd: python scripts/split_data.py data/processed_data/dataset.pkl data/train_test_data
       params.yaml
     deps:
     - path: data/processed_data/dataset.pkl
       hash: md5
-      md5: 2c2fbedf392f7aa0dc3ff21c80d46c16
-      size: 409854459
+      md5: a2d78199c72541fdf41b0c08d7766b4e
+      size: 618840922
     - path: scripts/split_data.py
       hash: md5
-      md5: 5b0c8989b1e582dba631770057d15e27
-      size: 1074
+      md5: c735dfadc84760d669341093a005b71d
+      size: 1179
+      isexec: true
     params:
       params.yaml:
+        split_data.label_column: LABEL-rating
         split_data.stratify: true
         split_data.test_size: 0.2
     outs:
     - path: data/train_test_data/test.pkl
       hash: md5
-      md5: 60fa78b2985e3a50e1c6bc7e92305846
-      size: 84311785
+      md5: a8365979fe91acb6a2f9a6355692f45c
+      size: 127534938
     - path: data/train_test_data/train.pkl
       hash: md5
-      md5: 836dea7acb93100ee152c0ac1737ddbb
-      size: 335273334
+      md5: 6718728d14f1ab5f6c52ecb58ee5d89b
+      size: 502730183
   eval_model:
     cmd: python scripts/eval_model.py data/train_test_data params.yaml metrics.json
     deps:
     - path: data/train_test_data/test.pkl
       hash: md5
-      md5: 60fa78b2985e3a50e1c6bc7e92305846
-      size: 84311785
+      md5: a8365979fe91acb6a2f9a6355692f45c
+      size: 127534938
     - path: data/train_test_data/train.pkl
       hash: md5
-      md5: 836dea7acb93100ee152c0ac1737ddbb
-      size: 335273334
+      md5: 6718728d14f1ab5f6c52ecb58ee5d89b
+      size: 502730183
     - path: scripts/eval_model.py
       hash: md5
-      md5: 3c9e585c5b5be38339a94d5b255d51df
+      md5: aedb322ee5a6ea14e4b7c8a5babb88b9
       size: 1039
+      isexec: true
     params:
       params.yaml:
         model.strategy: uniform
     outs:
     - path: metrics.json
       hash: md5
-      md5: c385531c0ccee63bc5ca64f38456232b
+      md5: b1ca41a7491603abe9385c59775daef8
       size: 34
