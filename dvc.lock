@@ -90,7 +90,7 @@ stages:
       md5: 3da9e5100166b06d83a804ba0b0eb81f
       size: 33
   execute_notebook:
-    cmd: papermill notebooks/Lab4.ipynb data/processed_data/Lab4.ipynb
+    cmd: papermill notebooks/Lab4.ipynb data/notebooks/Lab4.ipynb
     deps:
     - path: data/processed_data/dataset.pkl
       hash: md5
@@ -102,7 +102,7 @@ stages:
       size: 16435
       isexec: true
     outs:
-    - path: data/processed_data/Lab4.ipynb
+    - path: data/notebooks/Lab4.ipynb
       hash: md5
-      md5: 297661fe32e998744b2d1660e32305ab
-      size: 736556
+      md5: 00bfe94664df6eb7c37d98e55391dcfb
+      size: 736633

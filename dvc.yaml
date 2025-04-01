@@ -12,12 +12,12 @@ stages:
       - data/processed_data/dataset.pkl
 
   execute_notebook:
-    cmd: papermill notebooks/Lab4.ipynb data/processed_data/Lab4.ipynb
+    cmd: papermill notebooks/Lab4.ipynb data/notebooks/Lab4.ipynb
     deps:
       - notebooks/Lab4.ipynb
       - data/processed_data/dataset.pkl
     outs:
-      - data/processed_data/Lab4.ipynb:
+      - data/notebooks/Lab4.ipynb:
           cache: false
 
   split_data:
