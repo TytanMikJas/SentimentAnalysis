@@ -1,6 +1,27 @@
 split_data:
-  test_size: 0.2
+  test_size: 0.15
   stratify: True
+  label_column: LABEL-rating
 
 model:
-  strategy: uniform
+  strategy: most_frequent
+
+process_data:
+  review_text_column: review_text
+  cols_to_fix:
+    - total_feedback_count
+    - total_pos_feedback_count
+  cols_to_delete:
+    - product_id
+    - brand_id
+    - variation_type
+    - variation_value
+    - variation_desc
+    - author_id
+    - submission_time
+    - skin_tone
+    - eye_color
+    - skin_type
+    - hair_color
+    - product_id
+    - "Unnamed: 0"
