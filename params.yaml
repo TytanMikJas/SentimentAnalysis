@@ -25,3 +25,13 @@ process_data:
     - hair_color
     - product_id
     - "Unnamed: 0"
+
+preprocess_data:
+  cols_to_delete:
+    - value_price_usd
+    - sale_price_usd
+    - child_max_price
+    - child_min_price
+    - tertiary_category
+    - size
+    - ingredients

@@ -20,11 +20,21 @@ stages:
       - data/notebooks/Lab4.ipynb:
           cache: false
 
+  preprocess_data:
+    cmd: python scripts/preprocess_data.py data/processed_data/dataset.pkl data/preprocessed_data/preprocessed_dataset.pkl
+    deps:
+      - scripts/preprocess_data.py
+      - data/processed_data/dataset.pkl
+    params:
+      - preprocess_data.cols_to_delete
+    outs:
+      - data/preprocessed_data/preprocessed_dataset.pkl
+
   split_data:
-    cmd: python scripts/split_data.py data/processed_data/dataset.pkl data/train_test_data params.yaml
+    cmd: python scripts/split_data.py data/preprocessed_data/preprocessed_dataset.pkl data/train_test_data params.yaml
     deps:
       - scripts/split_data.py
-      - data/processed_data/dataset.pkl
+      - data/preprocessed_data/preprocessed_dataset.pkl
     params:
       - split_data.test_size
       - split_data.stratify
