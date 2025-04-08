@@ -31,7 +31,7 @@ stages:
       - data/preprocessed_data/preprocessed_dataset.pkl
 
   split_data:
-    cmd: python scripts/split_data.py data/preprocessed_data/preprocessed_dataset.pkl data/train_test_data params.yaml
+    cmd: python scripts/split_data.py data/preprocessed_data/preprocessed_dataset.pkl data/train_test_data
     deps:
       - scripts/split_data.py
       - data/preprocessed_data/preprocessed_dataset.pkl
@@ -44,13 +44,20 @@ stages:
       - data/train_test_data/test.pkl
 
   eval_model:
-    cmd: python scripts/eval_model.py data/train_test_data params.yaml metrics.json
+    cmd: python scripts/eval_model.py data/train_test_data metrics.json
     deps:
       - scripts/eval_model.py
       - data/train_test_data/train.pkl
       - data/train_test_data/test.pkl
     params:
-      - model.strategy
+      - features.categorical
+      - features.numerical
+      - features.text
+      - features.highlights
+      - features.selected
+      - features.dim_reduction
+      - features.dim_red_method
+      - features.n_components
     metrics:
       - metrics.json:
           cache: false

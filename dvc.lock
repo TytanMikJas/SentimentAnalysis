@@ -40,7 +40,7 @@ stages:
       size: 624919680
   split_data:
     cmd: python scripts/split_data.py data/preprocessed_data/preprocessed_dataset.pkl
-      data/train_test_data params.yaml
+      data/train_test_data
     deps:
     - path: data/preprocessed_data/preprocessed_dataset.pkl
       hash: md5
@@ -66,7 +66,7 @@ stages:
       md5: b2d70447387cc58b3dca2de903193b51
       size: 464188160
   eval_model:
-    cmd: python scripts/eval_model.py data/train_test_data params.yaml metrics.json
+    cmd: python scripts/eval_model.py data/train_test_data metrics.json
     deps:
     - path: data/train_test_data/test.pkl
       hash: md5
@@ -78,17 +78,68 @@ stages:
       size: 464188160
     - path: scripts/eval_model.py
       hash: md5
-      md5: a26cb681caf448cf91f7c817d12edd2c
-      size: 3176
+      md5: ff1ef3417beadf2db353559d47c1863c
+      size: 3835
       isexec: true
     params:
       params.yaml:
-        model.strategy: most_frequent
+        features.categorical:
+        - limited_edition
+        - new
+        - online_only
+        - out_of_stock
+        - sephora_exclusive
+        - contains_refund
+        - product_name
+        - brand_name
+        - primary_category
+        - secondary_category
+        features.dim_red_method: svd
+        features.dim_reduction: true
+        features.highlights: highlights
+        features.n_components: 100
+        features.numerical:
+        - total_feedback_count
+        - helpfulness
+        - total_neg_feedback_count
+        - total_pos_feedback_count
+        - price_usd
+        - loves_count
+        - rating
+        - reviews
+        - child_count
+        - review_length
+        - exclamation_count
+        - unique_word_count
+        features.selected:
+        - limited_edition
+        - online_only
+        - out_of_stock
+        - sephora_exclusive
+        - contains_refund
+        - product_name
+        - brand_name
+        - primary_category
+        - secondary_category
+        - helpfulness
+        - price_usd
+        - loves_count
+        - rating
+        - reviews
+        - review_length
+        - exclamation_count
+        - review_text
+        - review_title
+        - highlights
+        - LABEL-rating
+        features.text:
+        - review_text
+        - review_title
     outs:
     - path: metrics.json
       hash: md5
-      md5: 1cbd427be095b89bc766735643281026
-      size: 34
+      md5: 16868a0eef912da07838d23de3db638d
+      size: 623
   execute_notebook:
     cmd: papermill notebooks/Lab4.ipynb data/notebooks/Lab4.ipynb
     deps:
@@ -98,14 +149,14 @@ stages:
       size: 624919680
     - path: notebooks/Lab4.ipynb
       hash: md5
-      md5: 8d6415145300948ea0d485226e4dd752
-      size: 16501
+      md5: 888aa9c4e8c9f94683cd8673966b6ac5
+      size: 17061
       isexec: true
     outs:
     - path: data/notebooks/Lab4.ipynb
       hash: md5
-      md5: 3463779ad4acecd091af6d6796526e9f
-      size: 736609
+      md5: cdae3d884bc5d93e784fafe2cc61a16d
+      size: 736608
   preprocess_data:
     cmd: python scripts/preprocess_data.py data/processed_data/dataset.pkl data/preprocessed_data/preprocessed_dataset.pkl
     deps:
