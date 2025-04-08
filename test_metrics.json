@@ -1,0 +1,20 @@
+{
+    "all_dummy_metrics": {
+        "test accuracy": 0.6385875202889885,
+        "test precision": 0.4077940210688392,
+        "test recall": 0.6385875202889885,
+        "test f1_score": 0.49773846806415184
+    },
+    "all_svm_metrics": {
+        "test accuracy": 0.4395601713427954,
+        "test precision": 0.4912695359147951,
+        "test recall": 0.4395601713427954,
+        "test f1_score": 0.45974237942587615
+    },
+    "all_random_forest_metrics": {
+        "test accuracy": 0.6501629221024884,
+        "test precision": 0.6041581829878405,
+        "test recall": 0.6501629221024884,
+        "test f1_score": 0.5323455008327617
+    }
+}

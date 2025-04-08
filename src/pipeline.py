@@ -8,7 +8,7 @@ from sklearn.decomposition import PCA, TruncatedSVD
 
 
 class HighlightsBinarizer(BaseEstimator, TransformerMixin):
-    def __init__(self, top_k=10):
+    def __init__(self, top_k=20):
         self.top_k = top_k
         self.mlb = MultiLabelBinarizer()
 
@@ -43,8 +43,12 @@ class ColumnSelector(BaseEstimator, TransformerMixin):
 
 def build_pipeline(params, use_data, classifier):
     selected_columns = params["features"]["selected"]
-    cat_cols = [col for col in params["features"]["categorical"] if col in selected_columns]
-    num_cols = [col for col in params["features"]["numerical"] if col in selected_columns]
+    cat_cols = [
+        col for col in params["features"]["categorical"] if col in selected_columns
+    ]
+    num_cols = [
+        col for col in params["features"]["numerical"] if col in selected_columns
+    ]
     text_cols = [col for col in params["features"]["text"] if col in selected_columns]
     highlights_col = params["features"]["highlights"]
     use_dim_red = params["features"]["dim_reduction"]
@@ -61,7 +65,7 @@ def build_pipeline(params, use_data, classifier):
             transformers.append(
                 (
                     f"text_{text_col}",
-                    CountVectorizer(max_features=100, min_df=2, max_df=0.95),
+                    CountVectorizer(max_features=200, min_df=2, max_df=0.95),
                     text_col,
                 )
             )

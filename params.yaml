@@ -55,7 +55,7 @@ features:
     - LABEL-rating
   dim_reduction: true
   dim_red_method: "svd"
-  n_components: 100
+  n_components: 145
 
 process_data:
   review_text_column: review_text
