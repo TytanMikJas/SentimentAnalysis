@@ -2,6 +2,10 @@ import os
 import pandas as pd
 import json
 import logging
+import matplotlib.pyplot as plt
+import seaborn as sns
+import wandb
+from sklearn.metrics import confusion_matrix
 
 logging.basicConfig(
     level=logging.INFO,
@@ -55,7 +59,38 @@ def load_train_test_data(path_to_split_data: str):
     return training_data, test_data
 
 
-def save_f1_score(f1_scores: list, metrics_file: str):
-    logging.info("Saving f1 scores")
-    with open(os.path.join(metrics_file), "w") as f:
-        json.dump({"f1_scores": f1_scores}, f)
+def plot_confusion_matrix(y_train, y_hat_train, y_test, y_hat_test):
+    cm_train = confusion_matrix(y_train, y_hat_train)
+    plt.figure(figsize=(6, 4))
+    sns.heatmap(cm_train, annot=True, fmt="d", cmap="Blues")
+    plt.title("Confusion Matrix - Train")
+    plt.xlabel("Predicted")
+    plt.ylabel("Actual")
+    wandb.log({"Confusion Matrix Train": wandb.Image(plt)})
+    plt.close()
+
+    cm_test = confusion_matrix(y_test, y_hat_test)
+    plt.figure(figsize=(6, 4))
+    sns.heatmap(cm_test, annot=True, fmt="d", cmap="Reds")
+    plt.title("Confusion Matrix - Test")
+    plt.xlabel("Predicted")
+    plt.ylabel("Actual")
+    wandb.log({"Confusion Matrix Test": wandb.Image(plt)})
+    plt.close()
+
+
+def save_f1_score(f1_scores: list, experiment_name: str, metrics_file: str):
+    if os.path.exists(metrics_file):
+        with open(metrics_file, "r") as f:
+            existing_data = json.load(f)
+    else:
+        existing_data = {}
+
+    existing_data[f"avg weighted f1_score of {experiment_name}"] = f1_scores
+
+    with open(metrics_file, "w") as f:
+        json.dump(existing_data, f, indent=4)
+
+
+def log_info(text: str):
+    logging.info(text)

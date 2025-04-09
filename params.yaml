@@ -3,8 +3,59 @@ split_data:
   stratify: True
   label_column: LABEL-rating
 
-model:
-  strategy: most_frequent
+features:
+  categorical:
+    - limited_edition
+    - new
+    - online_only
+    - out_of_stock
+    - sephora_exclusive
+    - contains_refund
+    - product_name
+    - brand_name
+    - primary_category
+    - secondary_category
+  numerical: 
+    - total_feedback_count
+    - helpfulness
+    - total_neg_feedback_count
+    - total_pos_feedback_count
+    - price_usd
+    - loves_count
+    - rating
+    - reviews
+    - child_count
+    - review_length
+    - exclamation_count
+    - unique_word_count
+  text:
+    - review_text
+    - review_title
+  highlights: highlights
+  selected:
+    - limited_edition
+    - online_only
+    - out_of_stock
+    - sephora_exclusive
+    - contains_refund
+    - product_name
+    - brand_name
+    - primary_category
+    - secondary_category
+    - helpfulness
+    - price_usd
+    - loves_count
+    - rating
+    - reviews
+    - review_length
+    - exclamation_count
+    - review_text
+    - review_title
+    - highlights
+    - LABEL-rating
+  dim_reduction: true
+  dim_red_method: "svd"
+  n_components: 145
 
 process_data:
   review_text_column: review_text
@@ -25,3 +76,13 @@ process_data:
     - hair_color
     - product_id
     - "Unnamed: 0"
+
+preprocess_data:
+  cols_to_delete:
+    - value_price_usd
+    - sale_price_usd
+    - child_max_price
+    - child_min_price
+    - tertiary_category
+    - size
+    - ingredients

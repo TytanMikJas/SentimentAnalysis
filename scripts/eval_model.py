@@ -1,65 +1,110 @@
 import sys
 import yaml
 import wandb
-import matplotlib.pyplot as plt
-import seaborn as sns
 from sklearn.dummy import DummyClassifier
-from sklearn.metrics import f1_score, confusion_matrix
-from src.utils import load_train_test_data, save_f1_score
-
-def plot_confusion_matrix(y_train, y_hat_train, y_test, y_hat_test):
-    cm_train = confusion_matrix(y_train, y_hat_train)
-    plt.figure(figsize=(6, 4))
-    sns.heatmap(cm_train, annot=True, fmt="d", cmap="Blues")
-    plt.title("Confusion Matrix - Train")
-    plt.xlabel("Predicted")
-    plt.ylabel("Actual")
-    wandb.log({"Confusion Matrix Train": wandb.Image(plt)})
-    plt.close()
-
-    cm_test = confusion_matrix(y_test, y_hat_test)
-    plt.figure(figsize=(6, 4))
-    sns.heatmap(cm_test, annot=True, fmt="d", cmap="Reds")
-    plt.title("Confusion Matrix - Test")
-    plt.xlabel("Predicted")
-    plt.ylabel("Actual")
-    wandb.log({"Confusion Matrix Test": wandb.Image(plt)})
-    plt.close()
+from sklearn.metrics import f1_score
+from src.utils import (
+    load_train_test_data,
+    save_f1_score,
+    plot_confusion_matrix,
+    log_info,
+)
+from src.pipeline import build_pipeline
+from sklearn.svm import SVC
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import StratifiedKFold
+import numpy as np
+import os
 
 
-def eval_model(path_to_split_data, strategy, metrics_file):
-    wandb.init(project="pdiow-lab-4", name=f"dummy_clf_{strategy}")
+def run_test_classifiers(path_to_split_data, metrics_file, params):
+    classifiers = {
+        "dummy": DummyClassifier(),
+        "svm": SVC(kernel="linear", max_iter=1000),
+        "random_forest": RandomForestClassifier(max_depth=40, n_jobs=-1),
+    }
 
-    training_data, test_data = load_train_test_data(path_to_split_data)
+    settings = {
+        "text": "Tylko dane tekstowe",
+        "non-text": "Tylko dane nietekstowe",
+        "all": "Wszystkie dane",
+    }
 
-    X_train = training_data.drop(columns=["LABEL-rating"])
-    y_train = training_data["LABEL-rating"]
-    X_test = test_data.drop(columns=["LABEL-rating"])
-    y_test = test_data["LABEL-rating"]
+    training_data, _ = load_train_test_data(path_to_split_data)
+    training_data = training_data[params["features"]["selected"]]
+    X = training_data.drop(columns=["LABEL-rating"])
+    y = training_data["LABEL-rating"]
 
-    dummy_clf = DummyClassifier(strategy=strategy)
-    dummy_clf.fit(X_train, y_train)
-    
-    y_hat_train = dummy_clf.predict(X_train)
-    y_hat_test = dummy_clf.predict(X_test)
+    for use_data in settings:
+        for clf_name, clf in classifiers.items():
+            log_info(f"TESTTING {use_data} FOR {clf_name} CLASSIFIER")
+            wandb.init(
+                project="pdiow-lab-5-exp", name=f"{use_data}_{clf_name}", reinit=True
+            )
 
-    f1_train = f1_score(y_train, y_hat_train, average="weighted")
-    f1_test = f1_score(y_test, y_hat_test, average="weighted")
+            skf = StratifiedKFold(n_splits=5, shuffle=True)
+            f1_train_scores = []
+            f1_test_scores = []
+            y_train_true_all = []
+            y_train_pred_all = []
+            y_test_true_all = []
+            y_test_pred_all = []
 
-    save_f1_score(f1_test, metrics_file)
+            for train_idx, test_idx in skf.split(X, y):
+                log_info(
+                    f"{use_data} for {clf_name} iteration {len(f1_train_scores) + 1}/5"
+                )
+                X_train, X_test = X.iloc[train_idx], X.iloc[test_idx]
+                y_train, y_test = y.iloc[train_idx], y.iloc[test_idx]
 
-    wandb.log({"F1 Score Train": f1_train, "F1 Score Test": f1_test})
+                log_info(f"Building pipeline")
+                pipeline = build_pipeline(params, use_data=use_data, classifier=clf)
+                log_info(f"Fiting model")
+                pipeline.fit(X_train, y_train)
+                log_info(f"Predicting data")
+                y_hat_train = pipeline.predict(X_train)
+                y_hat_test = pipeline.predict(X_test)
+                log_info(f"Saving data")
 
-    plot_confusion_matrix(y_train, y_hat_train, y_test, y_hat_test)
+                f1_train = f1_score(y_train, y_hat_train, average="weighted")
+                f1_test = f1_score(y_test, y_hat_test, average="weighted")
 
-    wandb.finish()
+                f1_train_scores.append(f1_train)
+                f1_test_scores.append(f1_test)
+
+                y_train_true_all.extend(y_train)
+                y_train_pred_all.extend(y_hat_train)
+                y_test_true_all.extend(y_test)
+                y_test_pred_all.extend(y_hat_test)
+
+            wandb.log(
+                {
+                    "avg F1 Score Train": np.mean(f1_train),
+                    "avg F1 Score Test": np.mean(f1_test),
+                }
+            )
+
+            save_f1_score(
+                np.mean(f1_test_scores), f"{clf_name} on {use_data}", metrics_file
+            )
+
+            print(
+                f"{clf_name.upper()} ({use_data}): Avg F1 = {np.mean(f1_test_scores):.6f}"
+            )
+
+            plot_confusion_matrix(
+                y_train_true_all, y_train_pred_all, y_test_true_all, y_test_pred_all
+            )
+
+            wandb.finish()
+
 
 if __name__ == "__main__":
     path_to_split_data = sys.argv[1]
+    metrics_file = sys.argv[2]
+    os.environ["WANDB_SILENT"] = "true"
 
     with open("params.yaml", "r") as file:
         params = yaml.safe_load(file)
 
-    strategy = params["model"]["strategy"]
-    metrics_file = sys.argv[3]
-    eval_model(path_to_split_data, strategy, metrics_file)
+    run_test_classifiers(path_to_split_data, metrics_file, params)
