@@ -13,3 +13,5 @@ dvc[gdrive]==3.59.1
 nltk==3.9.1
 papermill==2.6.0
 wandb==0.19.8
+spacy==3.8.5
+shap==0.47.1
