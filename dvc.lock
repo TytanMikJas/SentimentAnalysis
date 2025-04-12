@@ -44,8 +44,8 @@ stages:
     deps:
     - path: data/preprocessed_data/preprocessed_dataset.pkl
       hash: md5
-      md5: ffe1634865e809c80fa69cc9cc5adb6b
-      size: 546074348
+      md5: 29589c31bba9f39bab5f774343119099
+      size: 415065133
     - path: scripts/split_data.py
       hash: md5
       md5: c735dfadc84760d669341093a005b71d
@@ -59,27 +59,27 @@ stages:
     outs:
     - path: data/train_test_data/test.pkl
       hash: md5
-      md5: 24413bfd4492915754a645d55186c2e7
-      size: 82036476
+      md5: 21952518d8cb522cd796c4645a5d1dab
+      size: 62388548
     - path: data/train_test_data/train.pkl
       hash: md5
-      md5: b2d70447387cc58b3dca2de903193b51
-      size: 464188160
+      md5: ed8b0518eb65ab6827a72f49fda10f54
+      size: 352826825
   eval_model:
     cmd: python scripts/eval_model.py data/train_test_data metrics.json
     deps:
     - path: data/train_test_data/test.pkl
       hash: md5
-      md5: 24413bfd4492915754a645d55186c2e7
-      size: 82036476
+      md5: 21952518d8cb522cd796c4645a5d1dab
+      size: 62388548
     - path: data/train_test_data/train.pkl
       hash: md5
-      md5: b2d70447387cc58b3dca2de903193b51
-      size: 464188160
+      md5: ed8b0518eb65ab6827a72f49fda10f54
+      size: 352826825
     - path: scripts/eval_model.py
       hash: md5
-      md5: ff1ef3417beadf2db353559d47c1863c
-      size: 3835
+      md5: 02f54bfad490c26bd8f738f70da165e2
+      size: 3642
       isexec: true
     params:
       params.yaml:
@@ -95,9 +95,9 @@ stages:
         - primary_category
         - secondary_category
         features.dim_red_method: svd
-        features.dim_reduction: true
+        features.dim_reduction: false
         features.highlights: highlights
-        features.n_components: 100
+        features.n_components: 145
         features.numerical:
         - total_feedback_count
         - helpfulness
@@ -138,8 +138,8 @@ stages:
     outs:
     - path: metrics.json
       hash: md5
-      md5: 16868a0eef912da07838d23de3db638d
-      size: 623
+      md5: f37cbb0d69b84e4ffa09498ce0ee257e
+      size: 627
   execute_notebook:
     cmd: papermill notebooks/Lab4.ipynb data/notebooks/Lab4.ipynb
     deps:
@@ -155,8 +155,8 @@ stages:
     outs:
     - path: data/notebooks/Lab4.ipynb
       hash: md5
-      md5: cdae3d884bc5d93e784fafe2cc61a16d
-      size: 736608
+      md5: 458651d6585b98cb9ef671de5d26744c
+      size: 736615
   preprocess_data:
     cmd: python scripts/preprocess_data.py data/processed_data/dataset.pkl data/preprocessed_data/preprocessed_dataset.pkl
     deps:
@@ -166,8 +166,8 @@ stages:
       size: 624919680
     - path: scripts/preprocess_data.py
       hash: md5
-      md5: ae0db5010304b07d44af2a515ffd9831
-      size: 2326
+      md5: 4e40563cabb572b9542eacc8ac0c1697
+      size: 3535
       isexec: true
     params:
       params.yaml:
@@ -182,5 +182,5 @@ stages:
     outs:
     - path: data/preprocessed_data/preprocessed_dataset.pkl
       hash: md5
-      md5: ffe1634865e809c80fa69cc9cc5adb6b
-      size: 546074348
+      md5: 29589c31bba9f39bab5f774343119099
+      size: 415065133

@@ -1,11 +1,11 @@
 {
-    "avg weighted f1_score of dummy on text": 0.4973609042094379,
-    "avg weighted f1_score of svm on text": 0.4801783329910963,
-    "avg weighted f1_score of random_forest on text": 0.5403270081202741,
-    "avg weighted f1_score of dummy on non-text": 0.4973609042094379,
-    "avg weighted f1_score of svm on non-text": 0.3884236897531563,
-    "avg weighted f1_score of random_forest on non-text": 0.5288885557699617,
-    "avg weighted f1_score of dummy on all": 0.4973609042094379,
-    "avg weighted f1_score of svm on all": 0.4685803467439557,
-    "avg weighted f1_score of random_forest on all": 0.5228197840096669
+    "avg weighted f1_score of dummy on text": 0.49599787733099554,
+    "avg weighted f1_score of svm on text": 0.5345343334637096,
+    "avg weighted f1_score of random_forest on text": 0.5668683370334395,
+    "avg weighted f1_score of dummy on non-text": 0.49599787733099554,
+    "avg weighted f1_score of svm on non-text": 0.49922354900474575,
+    "avg weighted f1_score of random_forest on non-text": 0.5146642658340523,
+    "avg weighted f1_score of dummy on all": 0.49599787733099554,
+    "avg weighted f1_score of svm on all": 0.5279999778942056,
+    "avg weighted f1_score of random_forest on all": 0.5274871559704267
 }
