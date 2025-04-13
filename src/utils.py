@@ -59,24 +59,25 @@ def load_train_test_data(path_to_split_data: str):
     return training_data, test_data
 
 
-def plot_confusion_matrix(y_train, y_hat_train, y_test, y_hat_test):
-    cm_train = confusion_matrix(y_train, y_hat_train)
-    plt.figure(figsize=(6, 4))
-    sns.heatmap(cm_train, annot=True, fmt="d", cmap="Blues")
-    plt.title("Confusion Matrix - Train")
-    plt.xlabel("Predicted")
-    plt.ylabel("Actual")
-    wandb.log({"Confusion Matrix Train": wandb.Image(plt)})
-    plt.close()
-
-    cm_test = confusion_matrix(y_test, y_hat_test)
-    plt.figure(figsize=(6, 4))
-    sns.heatmap(cm_test, annot=True, fmt="d", cmap="Reds")
-    plt.title("Confusion Matrix - Test")
-    plt.xlabel("Predicted")
-    plt.ylabel("Actual")
-    wandb.log({"Confusion Matrix Test": wandb.Image(plt)})
-    plt.close()
+def plot_confusion_matrix(y_train=None, y_hat_train=None, y_test=None, y_hat_test=None):
+    if y_train is not None and y_hat_train is not None:
+        cm_train = confusion_matrix(y_train, y_hat_train)
+        plt.figure(figsize=(6, 4))
+        sns.heatmap(cm_train, annot=True, fmt="d", cmap="Blues")
+        plt.title("Confusion Matrix - Train")
+        plt.xlabel("Predicted")
+        plt.ylabel("Actual")
+        wandb.log({"Confusion Matrix Train": wandb.Image(plt)})
+        plt.close()
+    if y_test is not None and y_hat_test is not None:
+        cm_test = confusion_matrix(y_test, y_hat_test)
+        plt.figure(figsize=(6, 4))
+        sns.heatmap(cm_test, annot=True, fmt="d", cmap="Reds")
+        plt.title("Confusion Matrix - Test")
+        plt.xlabel("Predicted")
+        plt.ylabel("Actual")
+        wandb.log({"Confusion Matrix Test": wandb.Image(plt)})
+        plt.close()
 
 
 def save_f1_score(f1_scores: list, experiment_name: str, metrics_file: str):
