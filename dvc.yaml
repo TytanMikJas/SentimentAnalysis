@@ -157,3 +157,13 @@ stages:
         - data/models/${key}/dummy_final_pipeline.pkl
         - data/models/${key}/random_forest_final_pipeline.pkl
         - data/models/${key}/svm_final_pipeline.pkl
+
+  summarize_results:
+    cmd: python scripts/summarize_results.py data/metrics data/models results/test_results.md
+    deps:
+      - scripts/summarize_results.py
+      - data/metrics
+      - data/models
+    outs:
+      - results/test_results.md:
+          cache: false

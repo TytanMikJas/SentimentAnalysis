@@ -79,7 +79,7 @@ def preprocess_data(path_to_data, path_to_preprocessed_data, dataset_name, nlp):
     df = load_dataset(path_to_data)
     df = remove_missing_values(df)
     if dataset_name == SEPHORA_DATASET:
-        df = df.sample(frac=0.1, random_state=42)
+        df = df.sample(frac=0.1, random_state=1)
         df = transform_highlights(df)
         df = fill_missing_data(df)
     df = clean_text_data(df, nlp, dataset_name)

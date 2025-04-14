@@ -135,9 +135,9 @@ def build_pipeline(
         n_components = custom_params["pipeline"]["n_components"]
 
         if dim_red_method == "pca":
-            steps.append(("reduce_dim", PCA(n_components=n_components)))
+            steps.append(("reduce_dim", PCA(n_components=n_components, random_state=1)))
         else:
-            steps.append(("reduce_dim", TruncatedSVD(n_components=n_components)))
+            steps.append(("reduce_dim", TruncatedSVD(n_components=n_components, random_state=1)))
 
     steps.append(("classifier", classifier))
 

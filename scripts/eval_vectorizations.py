@@ -18,7 +18,7 @@ import json
 
 def run_test_classifiers(path_to_split_data, metrics_file, custom_params, dataset_name):
     clf_name = "random_forest"
-    clf = RandomForestClassifier(max_depth=100, n_jobs=-1)
+    clf = RandomForestClassifier(max_depth=100, n_jobs=-1, random_state=1)
 
     vectorizers = {
         "word2vec": "word2vec",
@@ -47,7 +47,7 @@ def run_test_classifiers(path_to_split_data, metrics_file, custom_params, datase
             reinit=True,
         )
 
-        skf = StratifiedKFold(n_splits=5, shuffle=True)
+        skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=1)
         f1_train_scores = []
         f1_test_scores = []
         y_train_true_all = []

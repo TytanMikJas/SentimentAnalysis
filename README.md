@@ -1,21 +1,78 @@
-# Laboratoria 3-6
+# Sentiment Analysis Pipeline
 
-## Wstęp 
-
-1. W tym repozytorium będziemy zamieszczać rozwiązania do list **3-6 (w tym 6.2)**.
-2. Listy zadań będą umieszczane na wspólnym dysku Google.
-
-## Jak oddajemy listy?
-
-1. **Na branch `main` nie pushujemy niczego bezpośrednio.**
-2. Rozpoczynając pracę nad nową listą tworzymy branch, np. `git checkout -b list-3` i na nim pracujemy.
-3. Po skończeniu pracy robimy commit i push.
-4. Tworzymy pull request `main` <- `[nazwa brancha]` i nazywamy go: `lista 3`, `lista 4`, `lista 5`, `lista 6.1` lub `lista 6.2`. 
-Jak utworzyć PR przeczytasz [tutaj](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request).
-5. Upewnij się, że rozwiązania zadań są widoczne w zmianach w PR.
-Prowadzący będzie sprawdzał tylko zmiany, które są widoczne w utworzonym pull request. 
-6. **Mergujemy samodzielnie. Merge jest obowiązkowy przed oddaniem następnej listy** - 
-zmiany w PR mają dotyczyć tylko jednej listy. Czyli np. przed terminem oddania listy 4, mergujemy PR z listy 3.
-(Jeśli ktoś potrzebuje to można jeszcze przed sprawdzeniem, wtedy sprawdzany będzie zamknięty pull request.) 
+Ten projekt zawiera kompletny pipeline eksperymentów z użyciem `DVC`, `Docker` i `wandb`. Instrukcja poniżej pozwoli Ci zbudować środowisko i zreprodukować wyniki.
 
 ---
+
+## 🐳 Uruchomienie przez Dockera
+
+### 1. Zbuduj obraz Dockera
+
+```bash
+make build
+```
+
+### 2. Stwórz plik .env z kluczem API do Weights & Biases
+
+WANDB_API_KEY=twoj_klucz_api
+
+### 3. Pobierz dane i rozmieść je w katalogach
+🗂️ rt-polarity
+
+- Pobierz dane z: http://www.cs.cornell.edu/people/pabo/movie-review-data/rt-polaritydata.tar.gz
+
+- Wypakuj zawartość do:
+```bash
+data/raw_data/rt-polarity/
+```
+
+- Tak aby w środku były pliki:
+```
+rt-polarity.neg
+rt-polarity.pos
+```
+
+🗂️ sephora
+- Pobierz dane z: https://www.kaggle.com/datasets/nadyinky/sephora-products-and-skincare-reviews
+
+- Wypakuj wszystkie pliki .csv do:
+
+```bash
+data/raw_data/sephora/
+```
+
+### 4. Uruchom kontener Dockera z dostępem do środowiska
+```bash
+make run_docker
+```
+
+### 5. Wewnątrz kontenera wykonaj pipeline
+```bash
+dvc repro
+```
+
+### 📁 Struktura konfiguracji
+
+- params.yaml — główny plik parametrów, współdzielony między konfiguracjami.
+
+- configs/sephora.yaml, configs/rt-polarity.yaml — konfiguracje specyficzne dla zbiorów danych.
+
+- models/ — katalog z zapisanymi najlepszymi modelami (dla każdego datasetu osobno).
+
+- data/metrics/ — zawiera metryki dla każdego z eksperymentów.
+
+- results/ — wygenerowane podsumowania wyników.
+
+### 📝 Uwagi
+Pipeline automatycznie wykonuje całość przetwarzania i zapisuje wyniki bez potrzeby dodatkowych komend.
+
+Wymagane jest posiadanie konta w Weights & Biases i ustawienie własnego klucza API w .env.
+
+### ✅ Efekt końcowy
+Po wykonaniu dvc repro:
+
+- Modele zostaną zapisane w models/{dataset_name}
+
+- Wyniki zostaną zapisane w results/test_results.md oraz .pdf
+
+- Szczegółowe metryki w data/metrics/*
