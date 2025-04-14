@@ -21,9 +21,9 @@ import json
 
 def run_test_classifiers(path_to_split_data, metrics_file, custom_params, dataset_name):
     classifiers = {
-        "dummy": DummyClassifier(),
-        "svm": SVC(),
-        "random_forest": RandomForestClassifier(max_depth=100, n_jobs=-1),
+        "dummy": DummyClassifier(random_state=1),
+        "svm": SVC(random_state=1),
+        "random_forest": RandomForestClassifier(max_depth=100, n_jobs=-1, random_state=1),
     }
 
     settings = {
@@ -52,7 +52,7 @@ def run_test_classifiers(path_to_split_data, metrics_file, custom_params, datase
                 reinit=True,
             )
 
-            skf = StratifiedKFold(n_splits=5, shuffle=True)
+            skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=1)
             f1_train_scores = []
             f1_test_scores = []
             y_train_true_all = []

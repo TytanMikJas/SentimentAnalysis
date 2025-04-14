@@ -40,6 +40,7 @@ def run_test_classifiers(path_to_split_data, metrics_file, custom_params, datase
         max_features=best_params["RandomForest"]["classifier__max_features"],
         min_samples_leaf=best_params["RandomForest"]["classifier__min_samples_leaf"],
         n_jobs=-1,
+        random_state=1
     )
 
     # przez bardzo długi czas pracowania word2vec zdefaultowano na bag-of-words
@@ -49,9 +50,10 @@ def run_test_classifiers(path_to_split_data, metrics_file, custom_params, datase
         kernel=best_params["SVM"]["classifier__kernel"],
         degree=best_params["SVM"]["classifier__degree"],
         gamma=best_params["SVM"]["classifier__gamma"],
+        random_state=1
     )
 
-    classifiers = {"dummy": DummyClassifier(), "svm": svm_clf, "random_forest": rf_clf}
+    classifiers = {"dummy": DummyClassifier(random_state=1), "svm": svm_clf, "random_forest": rf_clf}
 
     training_data, test_data = load_train_test_data(path_to_split_data, dataset_name)
     training_data = training_data[custom_params["pipeline"]["selected"]]
