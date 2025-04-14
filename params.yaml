@@ -1,88 +1,10 @@
-split_data:
-  test_size: 0.15
-  stratify: True
-  label_column: LABEL-rating
-
-features:
-  categorical:
-    - limited_edition
-    - new
-    - online_only
-    - out_of_stock
-    - sephora_exclusive
-    - contains_refund
-    - product_name
-    - brand_name
-    - primary_category
-    - secondary_category
-  numerical: 
-    - total_feedback_count
-    - helpfulness
-    - total_neg_feedback_count
-    - total_pos_feedback_count
-    - price_usd
-    - loves_count
-    - rating
-    - reviews
-    - child_count
-    - review_length
-    - exclamation_count
-    - unique_word_count
-  text:
-    - review_text
-    - review_title
-  highlights: highlights
-  selected:
-    - limited_edition
-    - online_only
-    - out_of_stock
-    - sephora_exclusive
-    - contains_refund
-    - product_name
-    - brand_name
-    - primary_category
-    - secondary_category
-    - helpfulness
-    - price_usd
-    - loves_count
-    - rating
-    - reviews
-    - review_length
-    - exclamation_count
-    - review_text
-    - review_title
-    - highlights
-    - LABEL-rating
-  dim_reduction: False
-  dim_red_method: "svd"
-  n_components: 145
+datasets:
+  rt-polarity: data/raw_data/rt-polarity
+  sephora: data/raw_data/sephora
 
 process_data:
   review_text_column: review_text
-  cols_to_fix:
-    - total_feedback_count
-    - total_pos_feedback_count
-  cols_to_delete:
-    - product_id
-    - brand_id
-    - variation_type
-    - variation_value
-    - variation_desc
-    - author_id
-    - submission_time
-    - skin_tone
-    - eye_color
-    - skin_type
-    - hair_color
-    - product_id
-    - "Unnamed: 0"
 
-preprocess_data:
-  cols_to_delete:
-    - value_price_usd
-    - sale_price_usd
-    - child_max_price
-    - child_min_price
-    - tertiary_category
-    - size
-    - ingredients
+split_data:
+  test_size: 0.15
+  stratify: True

@@ -1,126 +1,159 @@
 stages:
   process_data:
-    cmd: python scripts/process_data.py data/raw_data data/processed_data/dataset.pkl
-    deps:
-      - scripts/process_data.py
-      - data/raw_data
-    params:
-      - process_data.review_text_column
-      - process_data.cols_to_delete
-      - process_data.cols_to_fix
-    outs:
-      - data/processed_data/dataset.pkl
-
-  execute_eda:
-    cmd: papermill notebooks/Lab4.ipynb data/notebooks/Lab4.ipynb
-    deps:
-      - notebooks/Lab4.ipynb
-      - data/processed_data/dataset.pkl
-    outs:
-      - data/notebooks/Lab4.ipynb:
-          cache: false
+    foreach: ${datasets}
+    do:
+      cmd: python scripts/process_data.py ${item} data/processed_data/${key}.pkl ${key}
+      deps:
+        - scripts/process_data.py
+        - ${item}
+      params:
+        - params.yaml:
+          - process_data.review_text_column
+        - configs/${key}.yaml:
+          - process_data.cols_to_delete
+          - process_data.cols_to_fix
+      outs:
+        - data/processed_data/${key}.pkl
 
   preprocess_data:
-    cmd: python scripts/preprocess_data.py data/processed_data/dataset.pkl data/preprocessed_data/preprocessed_dataset.pkl
-    deps:
-      - scripts/preprocess_data.py
-      - data/processed_data/dataset.pkl
-    params:
-      - preprocess_data.cols_to_delete
-    outs:
-      - data/preprocessed_data/preprocessed_dataset.pkl
+    foreach: ${datasets}
+    do:
+      cmd: python scripts/preprocess_data.py data/processed_data/${key}.pkl data/preprocessed_data/preprocessed_${key}.pkl ${key}
+      deps:
+        - scripts/preprocess_data.py
+        - data/processed_data/${key}.pkl
+      outs:
+        - data/preprocessed_data/preprocessed_${key}.pkl
 
   split_data:
-    cmd: python scripts/split_data.py data/preprocessed_data/preprocessed_dataset.pkl data/train_test_data
-    deps:
-      - scripts/split_data.py
-      - data/preprocessed_data/preprocessed_dataset.pkl
-    params:
-      - split_data.test_size
-      - split_data.stratify
-      - split_data.label_column
-    outs:
-      - data/train_test_data/train.pkl
-      - data/train_test_data/test.pkl
+    foreach: ${datasets}
+    do:
+      cmd: python scripts/split_data.py data/preprocessed_data/preprocessed_${key}.pkl data/train_test_data ${key}
+      deps:
+        - scripts/split_data.py
+        - data/preprocessed_data/preprocessed_${key}.pkl
+      params:
+        - params.yaml:
+          - split_data.test_size
+          - split_data.stratify
+        - configs/${key}.yaml:
+          - features.label
+      outs:
+        - data/train_test_data/${key}/train.pkl
+        - data/train_test_data/${key}/test.pkl
+
+  execute_eda:
+    foreach: ${datasets}
+    do:
+      cmd: >
+        papermill notebooks/eda.ipynb data/notebooks/${key}/eda.ipynb
+        -p dataset ${key}
+      deps:
+        - notebooks/eda.ipynb
+        - data/train_test_data/${key}/train.pkl
+      params:
+        - configs/${key}.yaml:
+          - features.categorical
+          - features.numerical
+          - features.text
+          - features.label
+      outs:
+        - data/notebooks/${key}/eda.ipynb:
+            cache: false
   
   eval_hyperparameters:
-    cmd: papermill notebooks/Lab6.1.ipynb data/notebooks/Lab6.1.ipynb
-    deps:
-      - notebooks/Lab6.1.ipynb
-      - data/train_test_data/train.pkl
-      - data/train_test_data/test.pkl
-    params:
-      - features.categorical
-      - features.numerical
-      - features.text
-      - features.highlights
-      - features.selected
-      - features.dim_reduction
-      - features.dim_red_method
-      - features.n_components
-    outs:
-      - data/notebooks/Lab6.1.ipynb:
-          cache: false
-      - data/models/best_params.json:
-          cache: false
+    foreach: ${datasets}
+    do:
+      cmd: >
+        papermill notebooks/eval_hyperparameters.ipynb data/notebooks/${key}/eval_hyperparameters.ipynb
+        -p dataset_name ${key}
+      deps:
+        - notebooks/eval_hyperparameters.ipynb
+        - data/train_test_data/${key}/train.pkl
+        - data/train_test_data/${key}/test.pkl
+      params:
+        - configs/${key}.yaml:
+          - pipeline.selected
+          - pipeline.dim_reduction
+          - pipeline.dim_red_method
+          - pipeline.n_components
+          - features.categorical
+          - features.numerical
+          - features.text
+          - features.label
+      outs:
+        - data/notebooks/${key}/eval_hyperparameters.ipynb:
+            cache: false
+        - data/models/${key}/best_params.json:
+            cache: false
 
   eval_features:
-    cmd: python scripts/eval_features.py data/train_test_data metrics.json
-    deps:
-      - scripts/eval_features.py
-      - data/train_test_data/train.pkl
-      - data/train_test_data/test.pkl
-    params:
-      - features.categorical
-      - features.numerical
-      - features.text
-      - features.highlights
-      - features.selected
-      - features.dim_reduction
-      - features.dim_red_method
-      - features.n_components
-    metrics:
-      - metrics.json:
-          cache: false
-    outs:
-      - data/models/best_features.json:
-          cache: false
+    foreach: ${datasets}
+    do:
+      cmd: python scripts/eval_features.py data/train_test_data data/metrics/${key}/feature_metrics.json ${key}
+      deps:
+        - scripts/eval_features.py
+        - data/train_test_data/${key}/train.pkl
+        - data/train_test_data/${key}/test.pkl
+      params:
+        - configs/${key}.yaml:
+          - features.highlights
+          - pipeline.selected
+          - pipeline.dim_reduction
+          - pipeline.dim_red_method
+          - pipeline.n_components
+          - features.categorical
+          - features.numerical
+          - features.text
+          - features.label
+      metrics:
+        - data/metrics/${key}/feature_metrics.json:
+            cache: false
+      outs:
+        - data/models/${key}/best_features.json:
+            cache: false
 
   eval_vectorization:
-    cmd: python scripts/eval_vectorizations.py data/train_test_data vec_metrics.json
-    deps:
-      - scripts/eval_vectorizations.py
-      - data/train_test_data/train.pkl
-      - data/train_test_data/test.pkl
-    params:
-      - features.categorical
-      - features.numerical
-      - features.text
-      - features.highlights
-      - features.selected
-      - features.dim_reduction
-      - features.dim_red_method
-      - features.n_components
-    metrics:
-      - vec_metrics.json:
-          cache: false
-    outs:
-      - data/models/best_vec_method.json:
-          cache: false
-  
+    foreach: ${datasets}
+    do:
+      cmd: python scripts/eval_vectorizations.py data/train_test_data data/metrics/${key}/vec_metrics.json ${key}
+      deps:
+        - scripts/eval_vectorizations.py
+        - data/train_test_data/${key}/train.pkl
+        - data/train_test_data/${key}/test.pkl
+      params:
+        - configs/${key}.yaml:
+          - features.highlights
+          - pipeline.selected
+          - pipeline.dim_reduction
+          - pipeline.dim_red_method
+          - pipeline.n_components
+          - features.categorical
+          - features.numerical
+          - features.text
+          - features.label
+      metrics:
+        - data/metrics/${key}/vec_metrics.json:
+            cache: false
+      outs:
+        - data/models/${key}/best_vec_method.json:
+            cache: false
+
   test_model:
-    cmd: python scripts/test_model.py data/train_test_data test_metrics.json
-    deps:
-      - scripts/test_model.py
-      - data/train_test_data/train.pkl
-      - data/train_test_data/test.pkl
-      - data/models/best_params.json
-      - data/models/best_features.json
-      - data/models/best_vec_method.json
-    metrics:
-      - test_metrics.json:
-          cache: false
-    outs:
-      - data/models/dummy_final_pipeline.pkl
-      - data/models/random_forest_final_pipeline.pkl
-      - data/models/svm_final_pipeline.pkl
+    foreach: ${datasets}
+    do:
+      cmd: python scripts/test_model.py data/train_test_data data/metrics/${key}/test_metrics.json ${key}
+      deps:
+        - scripts/test_model.py
+        - data/train_test_data/${key}/train.pkl
+        - data/train_test_data/${key}/test.pkl
+        - data/models/${key}/best_params.json
+        - data/models/${key}/best_features.json
+        - data/models/${key}/best_vec_method.json
+      metrics:
+        - data/metrics/${key}/test_metrics.json:
+            cache: false
+      outs:
+        - data/models/${key}/dummy_final_pipeline.pkl
+        - data/models/${key}/random_forest_final_pipeline.pkl
+        - data/models/${key}/svm_final_pipeline.pkl

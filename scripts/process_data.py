@@ -1,17 +1,30 @@
 import pandas as pd
 import sys
-from src.utils import load_raw_data, save_dataset
+from src.utils import (
+    load_raw_data,
+    save_dataset,
+    get_params,
+    SEPHORA_DATASET,
+    RT_POLARITY_DATASET,
+)
 import yaml
 
 
-def create_new_attributes(df, review_text_column):
+def create_new_attributes(df, review_text_column, dataset_name):
     df["review_length"] = df[review_text_column].astype(str).apply(len)
 
-    df["contains_refund"] = (
-        df[review_text_column]
-        .astype(str)
-        .apply(lambda x: 1 if "refund" in x.lower() else 0)
-    )
+    if dataset_name == SEPHORA_DATASET:
+        df["contains_refund"] = (
+            df[review_text_column]
+            .astype(str)
+            .apply(lambda x: 1 if "refund" in x.lower() else 0)
+        )
+    elif dataset_name == RT_POLARITY_DATASET:
+        df["contains_bad"] = (
+            df[review_text_column]
+            .astype(str)
+            .apply(lambda x: 1 if "bad" in x.lower() else 0)
+        )
 
     df["exclamation_count"] = (
         df[review_text_column].fillna("").astype(str).apply(lambda x: x.count("!"))
@@ -35,20 +48,20 @@ def fix_column_types_to_numeric(df, cols_to_fix):
 def process_data(
     path_to_raw_data,
     path_to_processed_data,
-    cols_to_delete,
-    review_text_column,
-    cols_to_fix,
+    dataset_name,
+    common_params,
+    custom_params,
 ):
-    reviews_df, product_info_df = load_raw_data(path_to_raw_data)
+    cols_to_fix = custom_params["process_data"].get("cols_to_fix", []) or []
+    cols_to_delete = custom_params["process_data"].get("cols_to_delete", []) or []
 
-    df = pd.merge(reviews_df, product_info_df, on="product_id", suffixes=("", "_drop"))
-    df = df.drop(columns=[col for col in df.columns if col.endswith("_drop")])
-
+    df = load_raw_data(path_to_raw_data, dataset_name)
     df = df.drop(columns=cols_to_delete, errors="ignore")
-
     df = fix_column_types_to_numeric(df, cols_to_fix)
 
-    df = create_new_attributes(df, review_text_column)
+    df = create_new_attributes(
+        df, common_params["process_data"]["review_text_column"], dataset_name
+    )
 
     save_dataset(df, path_to_processed_data)
 
@@ -56,14 +69,14 @@ def process_data(
 if __name__ == "__main__":
     path_to_raw_data = sys.argv[1]
     path_to_processed_data = sys.argv[2]
+    dataset_name = sys.argv[3]
 
-    with open("params.yaml", "r") as file:
-        params = yaml.safe_load(file)
+    common_params, custom_params = get_params(dataset_name)
 
     process_data(
         path_to_raw_data,
         path_to_processed_data,
-        params["process_data"]["cols_to_delete"],
-        params["process_data"]["review_text_column"],
-        params["process_data"]["cols_to_fix"],
+        dataset_name,
+        common_params,
+        custom_params,
     )
