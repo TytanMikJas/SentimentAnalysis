@@ -54,6 +54,8 @@ dvc repro
 
 ### 📁 Struktura konfiguracji
 
+strukturę folderów należy odwzorować w przypadku braków
+
 - `params.yaml` — główny plik parametrów, współdzielony między wszystkimi konfiguracjami. Zawiera ustawienia modelu, cech i ogólne hiperparametry.
 - `configs/sephora.yaml`, `configs/rt-polarity.yaml` — konfiguracje specyficzne dla danego zbioru danych (ścieżki, kolumny, parametry pipeline’u).
 - `data/raw_data/` — katalog, do którego należy ręcznie wrzucić nieprzetworzone dane wejściowe:
