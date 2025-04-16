@@ -1,10 +1,14 @@
 import pandas as pd
+import spacy
+import numpy as np
+import spacy.cli
 from sklearn.pipeline import Pipeline
 from sklearn.compose import ColumnTransformer
 from sklearn.preprocessing import StandardScaler, OneHotEncoder, MultiLabelBinarizer
-from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.decomposition import PCA, TruncatedSVD
+from sklearn.base import BaseEstimator, TransformerMixin
 
 
 class HighlightsBinarizer(BaseEstimator, TransformerMixin):
@@ -27,9 +31,6 @@ class HighlightsBinarizer(BaseEstimator, TransformerMixin):
         return self.mlb.transform(filtered)
 
 
-from sklearn.base import BaseEstimator, TransformerMixin
-
-
 class ColumnSelector(BaseEstimator, TransformerMixin):
     def __init__(self, columns):
         self.columns = columns
@@ -41,7 +42,35 @@ class ColumnSelector(BaseEstimator, TransformerMixin):
         return X[self.columns]
 
 
-def build_pipeline(params, use_data, classifier):
+class SpacyWord2VecVectorizer(BaseEstimator, TransformerMixin):
+    def __init__(self, model_name="en_core_web_md"):
+        self.model_name = model_name
+        self.nlp = None
+
+    def _load_model(self):
+        if self.nlp is None:
+            try:
+                self.nlp = spacy.load(self.model_name)
+            except OSError:
+                spacy.cli.download(self.model_name)
+                self.nlp = spacy.load(self.model_name)
+
+    def _get_doc_vector(self, doc):
+        vec = doc.vector
+        return vec if vec.shape[0] > 0 else np.zeros(self.nlp.vocab.vectors_length)
+
+    def fit(self, X, y=None):
+        self._load_model()
+        return self
+
+    def transform(self, X):
+        self._load_model()
+        return np.array(
+            [self._get_doc_vector(doc) for doc in self.nlp.pipe(X, batch_size=32)]
+        )
+
+
+def build_pipeline(params, use_data, classifier, vec_method="bag-of-words"):
     selected_columns = params["features"]["selected"]
     cat_cols = [
         col for col in params["features"]["categorical"] if col in selected_columns
@@ -62,13 +91,30 @@ def build_pipeline(params, use_data, classifier):
 
     if use_data in ["all", "text"]:
         for text_col in text_cols:
-            transformers.append(
-                (
-                    f"text_{text_col}",
-                    CountVectorizer(max_features=200, min_df=2, max_df=0.95),
-                    text_col,
+            if vec_method == "bag-of-words":
+                transformers.append(
+                    (
+                        f"text_{text_col}",
+                        CountVectorizer(max_features=200, min_df=2, max_df=0.90),
+                        text_col,
+                    )
                 )
-            )
+            elif vec_method == "tf-idf":
+                transformers.append(
+                    (
+                        f"text_{text_col}",
+                        TfidfVectorizer(max_features=200, min_df=2, max_df=0.90),
+                        text_col,
+                    )
+                )
+            elif vec_method == "word2vec":
+                transformers.append(
+                    (
+                        f"text_{text_col}",
+                        SpacyWord2VecVectorizer(),
+                        text_col,
+                    )
+                )
 
     preprocessor = ColumnTransformer(
         transformers, remainder="drop", verbose_feature_names_out=False

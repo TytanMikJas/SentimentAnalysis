@@ -15,13 +15,14 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import StratifiedKFold
 import numpy as np
 import os
+import json
 
 
 def run_test_classifiers(path_to_split_data, metrics_file, params):
     classifiers = {
         "dummy": DummyClassifier(),
-        "svm": SVC(kernel="linear", max_iter=1000),
-        "random_forest": RandomForestClassifier(max_depth=40, n_jobs=-1),
+        "svm": SVC(),
+        "random_forest": RandomForestClassifier(max_depth=100, n_jobs=-1),
     }
 
     settings = {
@@ -35,11 +36,16 @@ def run_test_classifiers(path_to_split_data, metrics_file, params):
     X = training_data.drop(columns=["LABEL-rating"])
     y = training_data["LABEL-rating"]
 
+    best_f1_score = -1
+    best_feature_set = None
+
     for use_data in settings:
         for clf_name, clf in classifiers.items():
-            log_info(f"TESTTING {use_data} FOR {clf_name} CLASSIFIER")
+            log_info(f"TESTTING {use_data.upper()} FOR {clf_name.upper()} CLASSIFIER")
             wandb.init(
-                project="pdiow-lab-5-exp", name=f"{use_data}_{clf_name}", reinit=True
+                project="pdiow-features-test",
+                name=f"{use_data}_{clf_name}",
+                reinit=True,
             )
 
             skf = StratifiedKFold(n_splits=5, shuffle=True)
@@ -57,14 +63,10 @@ def run_test_classifiers(path_to_split_data, metrics_file, params):
                 X_train, X_test = X.iloc[train_idx], X.iloc[test_idx]
                 y_train, y_test = y.iloc[train_idx], y.iloc[test_idx]
 
-                log_info(f"Building pipeline")
                 pipeline = build_pipeline(params, use_data=use_data, classifier=clf)
-                log_info(f"Fiting model")
                 pipeline.fit(X_train, y_train)
-                log_info(f"Predicting data")
                 y_hat_train = pipeline.predict(X_train)
                 y_hat_test = pipeline.predict(X_test)
-                log_info(f"Saving data")
 
                 f1_train = f1_score(y_train, y_hat_train, average="weighted")
                 f1_test = f1_score(y_test, y_hat_test, average="weighted")
@@ -77,10 +79,16 @@ def run_test_classifiers(path_to_split_data, metrics_file, params):
                 y_test_true_all.extend(y_test)
                 y_test_pred_all.extend(y_hat_test)
 
+            avg_f1 = np.mean(f1_test_scores)
+
+            if avg_f1 > best_f1_score:
+                best_f1_score = avg_f1
+                best_feature_set = use_data
+
             wandb.log(
                 {
-                    "avg F1 Score Train": np.mean(f1_train),
-                    "avg F1 Score Test": np.mean(f1_test),
+                    "avg F1 Score Train": np.mean(f1_train_scores),
+                    "avg F1 Score Test": np.mean(f1_test_scores),
                 }
             )
 
@@ -97,6 +105,9 @@ def run_test_classifiers(path_to_split_data, metrics_file, params):
             )
 
             wandb.finish()
+
+    with open("data/models/best_features.json", "w") as f:
+        json.dump({"best_features": best_feature_set}, f)
 
 
 if __name__ == "__main__":
