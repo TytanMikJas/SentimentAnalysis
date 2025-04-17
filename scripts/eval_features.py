@@ -8,6 +8,7 @@ from src.utils import (
     save_f1_score,
     plot_confusion_matrix,
     log_info,
+    get_params,
 )
 from src.pipeline import build_pipeline
 from sklearn.svm import SVC
@@ -18,11 +19,11 @@ import os
 import json
 
 
-def run_test_classifiers(path_to_split_data, metrics_file, params):
+def run_test_classifiers(path_to_split_data, metrics_file, custom_params, dataset_name):
     classifiers = {
-        "dummy": DummyClassifier(),
-        "svm": SVC(),
-        "random_forest": RandomForestClassifier(max_depth=100, n_jobs=-1),
+        "dummy": DummyClassifier(random_state=1),
+        "svm": SVC(random_state=1),
+        "random_forest": RandomForestClassifier(max_depth=100, n_jobs=-1, random_state=1),
     }
 
     settings = {
@@ -31,24 +32,27 @@ def run_test_classifiers(path_to_split_data, metrics_file, params):
         "all": "Wszystkie dane",
     }
 
-    training_data, _ = load_train_test_data(path_to_split_data)
-    training_data = training_data[params["features"]["selected"]]
-    X = training_data.drop(columns=["LABEL-rating"])
-    y = training_data["LABEL-rating"]
+    training_data, _ = load_train_test_data(path_to_split_data, dataset_name)
+    training_data = training_data[custom_params["pipeline"]["selected"]]
+    training_data = training_data[0:5_000]
+    X = training_data.drop(columns=custom_params["features"]["label"])
+    y = training_data[custom_params["features"]["label"]]
 
     best_f1_score = -1
     best_feature_set = None
 
     for use_data in settings:
         for clf_name, clf in classifiers.items():
-            log_info(f"TESTTING {use_data.upper()} FOR {clf_name.upper()} CLASSIFIER")
+            log_info(
+                f"TESTTING {use_data.upper()} FOR {clf_name.upper()} CLASSIFIER ON {dataset_name.upper()}"
+            )
             wandb.init(
                 project="pdiow-features-test",
-                name=f"{use_data}_{clf_name}",
+                name=f"{use_data}_{clf_name}_{dataset_name}",
                 reinit=True,
             )
 
-            skf = StratifiedKFold(n_splits=5, shuffle=True)
+            skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=1)
             f1_train_scores = []
             f1_test_scores = []
             y_train_true_all = []
@@ -58,12 +62,14 @@ def run_test_classifiers(path_to_split_data, metrics_file, params):
 
             for train_idx, test_idx in skf.split(X, y):
                 log_info(
-                    f"{use_data} for {clf_name} iteration {len(f1_train_scores) + 1}/5"
+                    f"{use_data} for {clf_name} iteration {dataset_name} {len(f1_train_scores) + 1}/5"
                 )
                 X_train, X_test = X.iloc[train_idx], X.iloc[test_idx]
                 y_train, y_test = y.iloc[train_idx], y.iloc[test_idx]
 
-                pipeline = build_pipeline(params, use_data=use_data, classifier=clf)
+                pipeline = build_pipeline(
+                    custom_params, dataset_name, use_data=use_data, classifier=clf
+                )
                 pipeline.fit(X_train, y_train)
                 y_hat_train = pipeline.predict(X_train)
                 y_hat_test = pipeline.predict(X_test)
@@ -93,7 +99,9 @@ def run_test_classifiers(path_to_split_data, metrics_file, params):
             )
 
             save_f1_score(
-                np.mean(f1_test_scores), f"{clf_name} on {use_data}", metrics_file
+                np.mean(f1_test_scores),
+                f"{clf_name} on {use_data} for {dataset_name}",
+                metrics_file,
             )
 
             print(
@@ -106,16 +114,16 @@ def run_test_classifiers(path_to_split_data, metrics_file, params):
 
             wandb.finish()
 
-    with open("data/models/best_features.json", "w") as f:
+    with open(f"data/models/{dataset_name}/best_features.json", "w") as f:
         json.dump({"best_features": best_feature_set}, f)
 
 
 if __name__ == "__main__":
     path_to_split_data = sys.argv[1]
     metrics_file = sys.argv[2]
+    dataset_name = sys.argv[3]
     os.environ["WANDB_SILENT"] = "true"
 
-    with open("params.yaml", "r") as file:
-        params = yaml.safe_load(file)
+    common_params, custom_params = get_params(dataset_name)
 
-    run_test_classifiers(path_to_split_data, metrics_file, params)
+    run_test_classifiers(path_to_split_data, metrics_file, custom_params, dataset_name)

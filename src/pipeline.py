@@ -9,6 +9,7 @@ from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.decomposition import PCA, TruncatedSVD
 from sklearn.base import BaseEstimator, TransformerMixin
+from src.utils import SEPHORA_DATASET
 
 
 class HighlightsBinarizer(BaseEstimator, TransformerMixin):
@@ -70,24 +71,31 @@ class SpacyWord2VecVectorizer(BaseEstimator, TransformerMixin):
         )
 
 
-def build_pipeline(params, use_data, classifier, vec_method="bag-of-words"):
-    selected_columns = params["features"]["selected"]
+def build_pipeline(
+    custom_params, dataset_name, use_data, classifier, vec_method="bag-of-words"
+):
+    selected_columns = custom_params["pipeline"]["selected"]
     cat_cols = [
-        col for col in params["features"]["categorical"] if col in selected_columns
+        col
+        for col in custom_params["features"]["categorical"]
+        if col in selected_columns
     ]
     num_cols = [
-        col for col in params["features"]["numerical"] if col in selected_columns
+        col for col in custom_params["features"]["numerical"] if col in selected_columns
     ]
-    text_cols = [col for col in params["features"]["text"] if col in selected_columns]
-    highlights_col = params["features"]["highlights"]
-    use_dim_red = params["features"]["dim_reduction"]
+    text_cols = [
+        col for col in custom_params["features"]["text"] if col in selected_columns
+    ]
+    highlights_col = custom_params["features"]["highlights"]
+    use_dim_red = custom_params["pipeline"]["dim_reduction"]
 
     transformers = []
 
     if use_data in ["all", "non-text"]:
         transformers.append(("cat", OneHotEncoder(handle_unknown="ignore"), cat_cols))
         transformers.append(("num", StandardScaler(), num_cols))
-        transformers.append(("highlights", HighlightsBinarizer(), [highlights_col]))
+        if highlights_col != None:
+            transformers.append(("highlights", HighlightsBinarizer(), [highlights_col]))
 
     if use_data in ["all", "text"]:
         for text_col in text_cols:
@@ -123,13 +131,13 @@ def build_pipeline(params, use_data, classifier, vec_method="bag-of-words"):
     steps = [("preprocessor", preprocessor)]
 
     if use_dim_red:
-        dim_red_method = params["features"]["dim_red_method"]
-        n_components = params["features"]["n_components"]
+        dim_red_method = custom_params["pipeline"]["dim_red_method"]
+        n_components = custom_params["pipeline"]["n_components"]
 
         if dim_red_method == "pca":
-            steps.append(("reduce_dim", PCA(n_components=n_components)))
+            steps.append(("reduce_dim", PCA(n_components=n_components, random_state=1)))
         else:
-            steps.append(("reduce_dim", TruncatedSVD(n_components=n_components)))
+            steps.append(("reduce_dim", TruncatedSVD(n_components=n_components, random_state=1)))
 
     steps.append(("classifier", classifier))
 

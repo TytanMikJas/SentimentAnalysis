@@ -504,3 +504,744 @@ stages:
       hash: md5
       md5: a8a4e3be1009f3da9ad3059cbb362a75
       size: 561
+  process_data@sephora:
+    cmd: python scripts/process_data.py data/raw_data/sephora data/processed_data/sephora.pkl
+      sephora
+    deps:
+    - path: data/raw_data/sephora
+      hash: md5
+      md5: 1879a37ccfe89870a8e73238e331f4ac.dir
+      size: 524018363
+      nfiles: 6
+    - path: scripts/process_data.py
+      hash: md5
+      md5: 57e01bc594436bd762f1b5423b6b513b
+      size: 2286
+      isexec: true
+    params:
+      params.yaml:
+        process_data.review_text_column: review_text
+      configs/sephora.yaml:
+        process_data.cols_to_delete:
+        - product_id
+        - brand_id
+        - variation_type
+        - variation_value
+        - variation_desc
+        - author_id
+        - submission_time
+        - skin_tone
+        - eye_color
+        - skin_type
+        - hair_color
+        - product_id
+        - 'Unnamed: 0'
+        - value_price_usd
+        - sale_price_usd
+        - child_max_price
+        - child_min_price
+        - tertiary_category
+        - size
+        - ingredients
+        process_data.cols_to_fix:
+        - total_feedback_count
+        - total_pos_feedback_count
+    outs:
+    - path: data/processed_data/sephora.pkl
+      hash: md5
+      md5: f0dbbefbaa8e24aa21189f6c7e86887c
+      size: 570771311
+  process_data@rt-polarity:
+    cmd: python scripts/process_data.py data/raw_data/rt-polarity data/processed_data/rt-polarity.pkl
+      rt-polarity
+    deps:
+    - path: data/raw_data/rt-polarity
+      hash: md5
+      md5: d803e9b5c7b9066535bc527dd8f89f79.dir
+      size: 1238458
+      nfiles: 2
+    - path: scripts/process_data.py
+      hash: md5
+      md5: 57e01bc594436bd762f1b5423b6b513b
+      size: 2286
+      isexec: true
+    params:
+      params.yaml:
+        process_data.review_text_column: review_text
+      configs/rt-polarity.yaml:
+        process_data.cols_to_delete: []
+        process_data.cols_to_fix: []
+    outs:
+    - path: data/processed_data/rt-polarity.pkl
+      hash: md5
+      md5: 4889d490930705bc21eb7afa6dcc2ae6
+      size: 1677374
+  execute_eda@rt-polarity:
+    cmd: "papermill notebooks/eda.ipynb data/notebooks/rt-polarity/eda.ipynb -p dataset
+      rt-polarity\n"
+    deps:
+    - path: data/train_test_data/rt-polarity/train.pkl
+      hash: md5
+      md5: 0dc18651cce7caea6680b9c234370123
+      size: 750192
+    - path: notebooks/eda.ipynb
+      hash: md5
+      md5: 6bef92adfbfddd5d0a1932793592dffd
+      size: 10635
+      isexec: true
+    params:
+      configs/rt-polarity.yaml:
+        features.categorical:
+        - contains_bad
+        features.label: label
+        features.numerical:
+        - review_length
+        - exclamation_count
+        - unique_word_count
+        features.text:
+        - review_text
+    outs:
+    - path: data/notebooks/rt-polarity/eda.ipynb
+      hash: md5
+      md5: d5d17f12afa238abe2a3da2676aaa390
+      size: 306166
+  execute_eda@sephora:
+    cmd: "papermill notebooks/eda.ipynb data/notebooks/sephora/eda.ipynb -p dataset
+      sephora\n"
+    deps:
+    - path: data/train_test_data/sephora/train.pkl
+      hash: md5
+      md5: a1bbdc9c83e5acecb058991a91e4341a
+      size: 35422282
+    - path: notebooks/eda.ipynb
+      hash: md5
+      md5: 6bef92adfbfddd5d0a1932793592dffd
+      size: 10635
+      isexec: true
+    params:
+      configs/sephora.yaml:
+        features.categorical:
+        - limited_edition
+        - new
+        - online_only
+        - out_of_stock
+        - sephora_exclusive
+        - contains_refund
+        - product_name
+        - brand_name
+        - primary_category
+        - secondary_category
+        features.label: LABEL-rating
+        features.numerical:
+        - total_feedback_count
+        - helpfulness
+        - total_neg_feedback_count
+        - total_pos_feedback_count
+        - price_usd
+        - loves_count
+        - rating
+        - reviews
+        - child_count
+        - review_length
+        - exclamation_count
+        - unique_word_count
+        features.text:
+        - review_text
+        - review_title
+    outs:
+    - path: data/notebooks/sephora/eda.ipynb
+      hash: md5
+      md5: e1b450d2d0b09ee67fb5a7d3984fd4e4
+      size: 610777
+  preprocess_data@rt-polarity:
+    cmd: python scripts/preprocess_data.py data/processed_data/rt-polarity.pkl data/preprocessed_data/preprocessed_rt-polarity.pkl
+      rt-polarity
+    deps:
+    - path: data/processed_data/rt-polarity.pkl
+      hash: md5
+      md5: 4889d490930705bc21eb7afa6dcc2ae6
+      size: 1677374
+    - path: scripts/preprocess_data.py
+      hash: md5
+      md5: fc0366169b2387be369543fcbd0462a4
+      size: 3044
+      isexec: true
+    outs:
+    - path: data/preprocessed_data/preprocessed_rt-polarity.pkl
+      hash: md5
+      md5: dd617f2e0f703af6dc707bc21450cf39
+      size: 796517
+  preprocess_data@sephora:
+    cmd: python scripts/preprocess_data.py data/processed_data/sephora.pkl data/preprocessed_data/preprocessed_sephora.pkl
+      sephora
+    deps:
+    - path: data/processed_data/sephora.pkl
+      hash: md5
+      md5: f0dbbefbaa8e24aa21189f6c7e86887c
+      size: 570771311
+    - path: scripts/preprocess_data.py
+      hash: md5
+      md5: fc0366169b2387be369543fcbd0462a4
+      size: 3044
+      isexec: true
+    outs:
+    - path: data/preprocessed_data/preprocessed_sephora.pkl
+      hash: md5
+      md5: 1a94ebf512675f56c37d7eb1a3f62ce0
+      size: 41644915
+  split_data@rt-polarity:
+    cmd: python scripts/split_data.py data/preprocessed_data/preprocessed_rt-polarity.pkl
+      data/train_test_data rt-polarity
+    deps:
+    - path: data/preprocessed_data/preprocessed_rt-polarity.pkl
+      hash: md5
+      md5: dd617f2e0f703af6dc707bc21450cf39
+      size: 796517
+    - path: scripts/split_data.py
+      hash: md5
+      md5: 80df4069805fe4df4131e8fe47f7c440
+      size: 1338
+      isexec: true
+    params:
+      params.yaml:
+        split_data.stratify: true
+        split_data.test_size: 0.15
+      configs/rt-polarity.yaml:
+        features.label: label
+    outs:
+    - path: data/train_test_data/rt-polarity/test.pkl
+      hash: md5
+      md5: 380b3ff8ee94cbb6a20d0b6194a69d4b
+      size: 132622
+    - path: data/train_test_data/rt-polarity/train.pkl
+      hash: md5
+      md5: 0dc18651cce7caea6680b9c234370123
+      size: 750192
+  split_data@sephora:
+    cmd: python scripts/split_data.py data/preprocessed_data/preprocessed_sephora.pkl
+      data/train_test_data sephora
+    deps:
+    - path: data/preprocessed_data/preprocessed_sephora.pkl
+      hash: md5
+      md5: 1a94ebf512675f56c37d7eb1a3f62ce0
+      size: 41644915
+    - path: scripts/split_data.py
+      hash: md5
+      md5: 80df4069805fe4df4131e8fe47f7c440
+      size: 1338
+      isexec: true
+    params:
+      params.yaml:
+        split_data.stratify: true
+        split_data.test_size: 0.15
+      configs/sephora.yaml:
+        features.label: LABEL-rating
+    outs:
+    - path: data/train_test_data/sephora/test.pkl
+      hash: md5
+      md5: b8f42ac8dcf33e771a5310ab92ffdb84
+      size: 6340843
+    - path: data/train_test_data/sephora/train.pkl
+      hash: md5
+      md5: a1bbdc9c83e5acecb058991a91e4341a
+      size: 35422282
+  eval_hyperparameters@rt-polarity:
+    cmd: "papermill notebooks/eval_hyperparameters.ipynb data/notebooks/rt-polarity/eval_hyperparameters.ipynb
+      -p dataset_name rt-polarity\n"
+    deps:
+    - path: data/train_test_data/rt-polarity/test.pkl
+      hash: md5
+      md5: 380b3ff8ee94cbb6a20d0b6194a69d4b
+      size: 132622
+    - path: data/train_test_data/rt-polarity/train.pkl
+      hash: md5
+      md5: 0dc18651cce7caea6680b9c234370123
+      size: 750192
+    - path: notebooks/eval_hyperparameters.ipynb
+      hash: md5
+      md5: a29b75480ea6feeec16f92460fd976f8
+      size: 22944
+      isexec: true
+    params:
+      configs/rt-polarity.yaml:
+        features.categorical:
+        - contains_bad
+        features.label: label
+        features.numerical:
+        - review_length
+        - exclamation_count
+        - unique_word_count
+        features.text:
+        - review_text
+        pipeline.dim_red_method: svd
+        pipeline.dim_reduction: false
+        pipeline.n_components: 145
+        pipeline.selected:
+        - contains_bad
+        - review_length
+        - exclamation_count
+        - unique_word_count
+        - review_text
+        - label
+    outs:
+    - path: data/models/rt-polarity/best_params.json
+      hash: md5
+      md5: 6dc0646385657fc49f3ff48a60025644
+      size: 313
+    - path: data/notebooks/rt-polarity/eval_hyperparameters.ipynb
+      hash: md5
+      md5: 341c2779c763635ccb1b630fb4d424cf
+      size: 213117
+  eval_hyperparameters@sephora:
+    cmd: "papermill notebooks/eval_hyperparameters.ipynb data/notebooks/sephora/eval_hyperparameters.ipynb
+      -p dataset_name sephora\n"
+    deps:
+    - path: data/train_test_data/sephora/test.pkl
+      hash: md5
+      md5: b8f42ac8dcf33e771a5310ab92ffdb84
+      size: 6340843
+    - path: data/train_test_data/sephora/train.pkl
+      hash: md5
+      md5: a1bbdc9c83e5acecb058991a91e4341a
+      size: 35422282
+    - path: notebooks/eval_hyperparameters.ipynb
+      hash: md5
+      md5: a29b75480ea6feeec16f92460fd976f8
+      size: 22944
+      isexec: true
+    params:
+      configs/sephora.yaml:
+        features.categorical:
+        - limited_edition
+        - new
+        - online_only
+        - out_of_stock
+        - sephora_exclusive
+        - contains_refund
+        - product_name
+        - brand_name
+        - primary_category
+        - secondary_category
+        features.label: LABEL-rating
+        features.numerical:
+        - total_feedback_count
+        - helpfulness
+        - total_neg_feedback_count
+        - total_pos_feedback_count
+        - price_usd
+        - loves_count
+        - rating
+        - reviews
+        - child_count
+        - review_length
+        - exclamation_count
+        - unique_word_count
+        features.text:
+        - review_text
+        - review_title
+        pipeline.dim_red_method: svd
+        pipeline.dim_reduction: false
+        pipeline.n_components: 145
+        pipeline.selected:
+        - limited_edition
+        - online_only
+        - out_of_stock
+        - sephora_exclusive
+        - contains_refund
+        - product_name
+        - brand_name
+        - primary_category
+        - secondary_category
+        - helpfulness
+        - price_usd
+        - loves_count
+        - rating
+        - reviews
+        - review_length
+        - exclamation_count
+        - review_text
+        - review_title
+        - highlights
+        - LABEL-rating
+    outs:
+    - path: data/models/sephora/best_params.json
+      hash: md5
+      md5: 2ad01505e4066edc56739952e0727949
+      size: 313
+    - path: data/notebooks/sephora/eval_hyperparameters.ipynb
+      hash: md5
+      md5: f84a77bcad86221327ef0e69754e7ca7
+      size: 210955
+  eval_features@rt-polarity:
+    cmd: python scripts/eval_features.py data/train_test_data data/metrics/rt-polarity/feature_metrics.json
+      rt-polarity
+    deps:
+    - path: data/train_test_data/rt-polarity/test.pkl
+      hash: md5
+      md5: 380b3ff8ee94cbb6a20d0b6194a69d4b
+      size: 132622
+    - path: data/train_test_data/rt-polarity/train.pkl
+      hash: md5
+      md5: 0dc18651cce7caea6680b9c234370123
+      size: 750192
+    - path: scripts/eval_features.py
+      hash: md5
+      md5: f50b2a784d3ce3460c0d0d4af42ce14e
+      size: 4465
+      isexec: true
+    params:
+      configs/rt-polarity.yaml:
+        features.categorical:
+        - contains_bad
+        features.highlights:
+        features.label: label
+        features.numerical:
+        - review_length
+        - exclamation_count
+        - unique_word_count
+        features.text:
+        - review_text
+        pipeline.dim_red_method: svd
+        pipeline.dim_reduction: false
+        pipeline.n_components: 145
+        pipeline.selected:
+        - contains_bad
+        - review_length
+        - exclamation_count
+        - unique_word_count
+        - review_text
+        - label
+    outs:
+    - path: data/metrics/rt-polarity/feature_metrics.json
+      hash: md5
+      md5: 4be012d9661ef0680c76565a200ef074
+      size: 768
+    - path: data/models/rt-polarity/best_features.json
+      hash: md5
+      md5: b1470106cb23b1129f9c6ecfd50f72b8
+      size: 24
+  eval_features@sephora:
+    cmd: python scripts/eval_features.py data/train_test_data data/metrics/sephora/feature_metrics.json
+      sephora
+    deps:
+    - path: data/train_test_data/sephora/test.pkl
+      hash: md5
+      md5: b8f42ac8dcf33e771a5310ab92ffdb84
+      size: 6340843
+    - path: data/train_test_data/sephora/train.pkl
+      hash: md5
+      md5: a1bbdc9c83e5acecb058991a91e4341a
+      size: 35422282
+    - path: scripts/eval_features.py
+      hash: md5
+      md5: f50b2a784d3ce3460c0d0d4af42ce14e
+      size: 4465
+      isexec: true
+    params:
+      configs/sephora.yaml:
+        features.categorical:
+        - limited_edition
+        - new
+        - online_only
+        - out_of_stock
+        - sephora_exclusive
+        - contains_refund
+        - product_name
+        - brand_name
+        - primary_category
+        - secondary_category
+        features.highlights: highlights
+        features.label: LABEL-rating
+        features.numerical:
+        - total_feedback_count
+        - helpfulness
+        - total_neg_feedback_count
+        - total_pos_feedback_count
+        - price_usd
+        - loves_count
+        - rating
+        - reviews
+        - child_count
+        - review_length
+        - exclamation_count
+        - unique_word_count
+        features.text:
+        - review_text
+        - review_title
+        pipeline.dim_red_method: svd
+        pipeline.dim_reduction: false
+        pipeline.n_components: 145
+        pipeline.selected:
+        - limited_edition
+        - online_only
+        - out_of_stock
+        - sephora_exclusive
+        - contains_refund
+        - product_name
+        - brand_name
+        - primary_category
+        - secondary_category
+        - helpfulness
+        - price_usd
+        - loves_count
+        - rating
+        - reviews
+        - review_length
+        - exclamation_count
+        - review_text
+        - review_title
+        - highlights
+        - LABEL-rating
+    outs:
+    - path: data/metrics/sephora/feature_metrics.json
+      hash: md5
+      md5: 800eebe4bbcae55ffe69121183562501
+      size: 734
+    - path: data/models/sephora/best_features.json
+      hash: md5
+      md5: 13356ec67b28ac7815bac1325fe01e78
+      size: 25
+  eval_vectorization@rt-polarity:
+    cmd: python scripts/eval_vectorizations.py data/train_test_data data/metrics/rt-polarity/vec_metrics.json
+      rt-polarity
+    deps:
+    - path: data/train_test_data/rt-polarity/test.pkl
+      hash: md5
+      md5: 380b3ff8ee94cbb6a20d0b6194a69d4b
+      size: 132622
+    - path: data/train_test_data/rt-polarity/train.pkl
+      hash: md5
+      md5: 0dc18651cce7caea6680b9c234370123
+      size: 750192
+    - path: scripts/eval_vectorizations.py
+      hash: md5
+      md5: 0a280d6a5d0351c0f3772094346ba417
+      size: 4012
+      isexec: true
+    params:
+      configs/rt-polarity.yaml:
+        features.categorical:
+        - contains_bad
+        features.highlights:
+        features.label: label
+        features.numerical:
+        - review_length
+        - exclamation_count
+        - unique_word_count
+        features.text:
+        - review_text
+        pipeline.dim_red_method: svd
+        pipeline.dim_reduction: false
+        pipeline.n_components: 145
+        pipeline.selected:
+        - contains_bad
+        - review_length
+        - exclamation_count
+        - unique_word_count
+        - review_text
+        - label
+    outs:
+    - path: data/metrics/rt-polarity/vec_metrics.json
+      hash: md5
+      md5: e65da1e7c12bcaebde910c58d2326637
+      size: 276
+    - path: data/models/rt-polarity/best_vec_method.json
+      hash: md5
+      md5: dbc11670edc61ce83823d2f26991fbf8
+      size: 31
+  eval_vectorization@sephora:
+    cmd: python scripts/eval_vectorizations.py data/train_test_data data/metrics/sephora/vec_metrics.json
+      sephora
+    deps:
+    - path: data/train_test_data/sephora/test.pkl
+      hash: md5
+      md5: b8f42ac8dcf33e771a5310ab92ffdb84
+      size: 6340843
+    - path: data/train_test_data/sephora/train.pkl
+      hash: md5
+      md5: a1bbdc9c83e5acecb058991a91e4341a
+      size: 35422282
+    - path: scripts/eval_vectorizations.py
+      hash: md5
+      md5: 0a280d6a5d0351c0f3772094346ba417
+      size: 4012
+      isexec: true
+    params:
+      configs/sephora.yaml:
+        features.categorical:
+        - limited_edition
+        - new
+        - online_only
+        - out_of_stock
+        - sephora_exclusive
+        - contains_refund
+        - product_name
+        - brand_name
+        - primary_category
+        - secondary_category
+        features.highlights: highlights
+        features.label: LABEL-rating
+        features.numerical:
+        - total_feedback_count
+        - helpfulness
+        - total_neg_feedback_count
+        - total_pos_feedback_count
+        - price_usd
+        - loves_count
+        - rating
+        - reviews
+        - child_count
+        - review_length
+        - exclamation_count
+        - unique_word_count
+        features.text:
+        - review_text
+        - review_title
+        pipeline.dim_red_method: svd
+        pipeline.dim_reduction: false
+        pipeline.n_components: 145
+        pipeline.selected:
+        - limited_edition
+        - online_only
+        - out_of_stock
+        - sephora_exclusive
+        - contains_refund
+        - product_name
+        - brand_name
+        - primary_category
+        - secondary_category
+        - helpfulness
+        - price_usd
+        - loves_count
+        - rating
+        - reviews
+        - review_length
+        - exclamation_count
+        - review_text
+        - review_title
+        - highlights
+        - LABEL-rating
+    outs:
+    - path: data/metrics/sephora/vec_metrics.json
+      hash: md5
+      md5: 9559b6f22a268842a5655619cd09a41c
+      size: 264
+    - path: data/models/sephora/best_vec_method.json
+      hash: md5
+      md5: dbc11670edc61ce83823d2f26991fbf8
+      size: 31
+  test_model@rt-polarity:
+    cmd: python scripts/test_model.py data/train_test_data data/metrics/rt-polarity/test_metrics.json
+      rt-polarity
+    deps:
+    - path: data/models/rt-polarity/best_features.json
+      hash: md5
+      md5: b1470106cb23b1129f9c6ecfd50f72b8
+      size: 24
+    - path: data/models/rt-polarity/best_params.json
+      hash: md5
+      md5: 6dc0646385657fc49f3ff48a60025644
+      size: 313
+    - path: data/models/rt-polarity/best_vec_method.json
+      hash: md5
+      md5: dbc11670edc61ce83823d2f26991fbf8
+      size: 31
+    - path: data/train_test_data/rt-polarity/test.pkl
+      hash: md5
+      md5: 380b3ff8ee94cbb6a20d0b6194a69d4b
+      size: 132622
+    - path: data/train_test_data/rt-polarity/train.pkl
+      hash: md5
+      md5: 0dc18651cce7caea6680b9c234370123
+      size: 750192
+    - path: scripts/test_model.py
+      hash: md5
+      md5: 4e5af10c0bf5edbc00ca29fe80102da6
+      size: 5302
+      isexec: true
+    outs:
+    - path: data/metrics/rt-polarity/test_metrics.json
+      hash: md5
+      md5: 20a1a583fc606cdc1b82ed76ba5ccafc
+      size: 575
+    - path: data/models/rt-polarity/dummy_final_pipeline.pkl
+      hash: md5
+      md5: ed497f3b62f22dee25ee761dd3bcd9dd
+      size: 9337
+    - path: data/models/rt-polarity/random_forest_final_pipeline.pkl
+      hash: md5
+      md5: f23616a156bc3ad875a9cc7c5bf24759
+      size: 4527042
+    - path: data/models/rt-polarity/svm_final_pipeline.pkl
+      hash: md5
+      md5: 265123375ad8d4883dc182b0559b5969
+      size: 795981
+  test_model@sephora:
+    cmd: python scripts/test_model.py data/train_test_data data/metrics/sephora/test_metrics.json
+      sephora
+    deps:
+    - path: data/models/sephora/best_features.json
+      hash: md5
+      md5: 13356ec67b28ac7815bac1325fe01e78
+      size: 25
+    - path: data/models/sephora/best_params.json
+      hash: md5
+      md5: 2ad01505e4066edc56739952e0727949
+      size: 313
+    - path: data/models/sephora/best_vec_method.json
+      hash: md5
+      md5: dbc11670edc61ce83823d2f26991fbf8
+      size: 31
+    - path: data/train_test_data/sephora/test.pkl
+      hash: md5
+      md5: b8f42ac8dcf33e771a5310ab92ffdb84
+      size: 6340843
+    - path: data/train_test_data/sephora/train.pkl
+      hash: md5
+      md5: a1bbdc9c83e5acecb058991a91e4341a
+      size: 35422282
+    - path: scripts/test_model.py
+      hash: md5
+      md5: 4e5af10c0bf5edbc00ca29fe80102da6
+      size: 5302
+      isexec: true
+    outs:
+    - path: data/metrics/sephora/test_metrics.json
+      hash: md5
+      md5: 533fc261759b4464cfd9a517b8f47198
+      size: 571
+    - path: data/models/sephora/dummy_final_pipeline.pkl
+      hash: md5
+      md5: 5339e89ecfbf886c9a33e93fb4d1dd33
+      size: 14049
+    - path: data/models/sephora/random_forest_final_pipeline.pkl
+      hash: md5
+      md5: 3fdd95343935674421fe8d2d9bd33328
+      size: 79608090
+    - path: data/models/sephora/svm_final_pipeline.pkl
+      hash: md5
+      md5: 163ce3b6b958c76011827416e90dd213
+      size: 5839185
+  summarize_results:
+    cmd: python scripts/summarize_results.py data/metrics data/models results/test_results.md
+    deps:
+    - path: data/metrics
+      hash: md5
+      md5: d1fbf4eb9a794408f7b409af66562230.dir
+      size: 3188
+      nfiles: 6
+    - path: data/models
+      hash: md5
+      md5: 909d4c49319d54b359329b21e7bb1063.dir
+      size: 90794421
+      nfiles: 12
+    - path: scripts/summarize_results.py
+      hash: md5
+      md5: 0225e41f85a620e8abb30fae561afc54
+      size: 2908
+      isexec: true
+    outs:
+    - path: results/test_results.md
+      hash: md5
+      md5: 4b3573205c5fbfc3b6b6932bf861b4e5
+      size: 664

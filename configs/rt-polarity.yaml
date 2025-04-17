@@ -1,0 +1,27 @@
+process_data:
+  cols_to_fix: []
+  cols_to_delete: []
+
+features:
+  categorical:
+    - contains_bad
+  numerical: 
+    - review_length
+    - exclamation_count
+    - unique_word_count
+  text:
+    - review_text
+  label: label
+  highlights: null
+
+pipeline:
+  dim_reduction: False
+  dim_red_method: "svd"
+  n_components: 145
+  selected:
+    - contains_bad
+    - review_length
+    - exclamation_count
+    - unique_word_count
+    - review_text
+    - label
