@@ -1,0 +1,5 @@
+{
+    "avg weighted f1_score of random_forest on word2vec for sephora": 0.5644057022760414,
+    "avg weighted f1_score of random_forest on tfidf for sephora": 0.5644057022760414,
+    "avg weighted f1_score of random_forest on bow for sephora": 0.5644057022760414
+}

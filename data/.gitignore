@@ -1,13 +1,13 @@
-data/raw_data/*
-data/processed_data/*
-data/preprocessed_data/*
-data/train_test_data/*
-data/models/*
-data/metrics/*
+raw_data/*
+processed_data/*
+preprocessed_data/*
+train_test_data/*
+models/rt-polarity/*.pkl
+models/sephora/*.pkl
 
-!data/raw_data/.gitkeep
-!data/processed_data/.gitkeep
-!data/preprocessed_data/.gitkeep
-!data/train_test_data/.gitkeep
-!data/models/.gitkeep
-!data/metrics/.gitkeep
+!raw_data/.gitkeep
+!processed_data/.gitkeep
+!preprocessed_data/.gitkeep
+!train_test_data/.gitkeep
+!models/.gitkeep
+!metrics/.gitkeep

@@ -1,0 +1,20 @@
+{
+    "dummy_sephora_metrics": {
+        "test_accuracy": 0.622,
+        "test_precision": 0.386884,
+        "test_recall": 0.622,
+        "test_f1_score": 0.47704562268803946
+    },
+    "svm_sephora_metrics": {
+        "test_accuracy": 0.655,
+        "test_precision": 0.6130610237770313,
+        "test_recall": 0.655,
+        "test_f1_score": 0.5786591576263892
+    },
+    "random_forest_sephora_metrics": {
+        "test_accuracy": 0.626,
+        "test_precision": 0.5423589384147118,
+        "test_recall": 0.626,
+        "test_f1_score": 0.5562805628057234
+    }
+}

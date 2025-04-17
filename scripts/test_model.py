@@ -1,12 +1,13 @@
+import os
 import sys
-import yaml
+import json
+import joblib
 import wandb
-from sklearn.metrics import (
-    accuracy_score,
-    precision_score,
-    recall_score,
-    f1_score,
-)
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.svm import SVC
+from sklearn.dummy import DummyClassifier
+
 from src.utils import (
     load_train_test_data,
     plot_confusion_matrix,
@@ -15,72 +16,87 @@ from src.utils import (
     SEPHORA_DATASET,
 )
 from src.pipeline import build_pipeline
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.dummy import DummyClassifier
-from sklearn.svm import SVC
-import os
-import json
-import joblib
+
+
+WANDB_PROJECT = "pdiow-model-test"
+
+
+def load_best_model_settings(dataset_name):
+    def load_json(path):
+        with open(path, "r") as f:
+            return json.load(f)
+
+    base_path = f"data/models/{dataset_name}"
+    return (
+        load_json(f"{base_path}/best_params.json"),
+        load_json(f"{base_path}/best_features.json"),
+        load_json(f"{base_path}/best_vec_method.json"),
+    )
+
+
+def prepare_data(path_to_split_data, dataset_name, selected_columns, label_col):
+    train_data, test_data = load_train_test_data(path_to_split_data, dataset_name)
+
+    train_data = train_data[selected_columns]
+    test_data = test_data[selected_columns]
+
+    X_train = train_data.drop(columns=[label_col])
+    y_train = train_data[label_col]
+    X_test = test_data.drop(columns=[label_col])
+    y_test = test_data[label_col]
+
+    return X_train, y_train, X_test, y_test
 
 
 def run_test_classifiers(path_to_split_data, metrics_file, custom_params, dataset_name):
-    with open(f"data/models/{dataset_name}/best_params.json", "r") as f:
-        best_params = json.load(f)
+    best_params, best_features, best_vec = load_best_model_settings(dataset_name)
+    best_vec_method = "bag-of-words"
 
-    with open(f"data/models/{dataset_name}/best_features.json", "r") as f:
-        best_features = json.load(f)
+    classifiers = {
+        "dummy": DummyClassifier(random_state=1),
+        "svm": SVC(
+            C=best_params["SVM"]["classifier__C"],
+            kernel=best_params["SVM"]["classifier__kernel"],
+            degree=best_params["SVM"]["classifier__degree"],
+            gamma=best_params["SVM"]["classifier__gamma"],
+            random_state=1,
+        ),
+        "random_forest": RandomForestClassifier(
+            max_depth=best_params["RandomForest"]["classifier__max_depth"],
+            n_estimators=best_params["RandomForest"]["classifier__n_estimators"],
+            criterion=best_params["RandomForest"]["classifier__criterion"],
+            max_features=best_params["RandomForest"]["classifier__max_features"],
+            min_samples_leaf=best_params["RandomForest"][
+                "classifier__min_samples_leaf"
+            ],
+            n_jobs=-1,
+            random_state=1,
+        ),
+    }
 
-    with open(f"data/models/{dataset_name}/best_vec_method.json", "r") as f:
-        best_vec_method = json.load(f)
+    label_col = custom_params["features"]["label"]
+    selected_columns = custom_params["pipeline"]["selected"]
 
-    rf_clf = RandomForestClassifier(
-        max_depth=best_params["RandomForest"]["classifier__max_depth"],
-        n_estimators=best_params["RandomForest"]["classifier__n_estimators"],
-        criterion=best_params["RandomForest"]["classifier__criterion"],
-        max_features=best_params["RandomForest"]["classifier__max_features"],
-        min_samples_leaf=best_params["RandomForest"]["classifier__min_samples_leaf"],
-        n_jobs=-1,
-        random_state=1
+    X_train, y_train, X_test, y_test = prepare_data(
+        path_to_split_data, dataset_name, selected_columns, label_col
     )
 
-    # przez bardzo długi czas pracowania word2vec zdefaultowano na bag-of-words
-    best_vec_method =  "bag-of-words"
-    svm_clf = SVC(
-        C=best_params["SVM"]["classifier__C"],
-        kernel=best_params["SVM"]["classifier__kernel"],
-        degree=best_params["SVM"]["classifier__degree"],
-        gamma=best_params["SVM"]["classifier__gamma"],
-        random_state=1
-    )
-
-    classifiers = {"dummy": DummyClassifier(random_state=1), "svm": svm_clf, "random_forest": rf_clf}
-
-    training_data, test_data = load_train_test_data(path_to_split_data, dataset_name)
-    training_data = training_data[custom_params["pipeline"]["selected"]]
-    if dataset_name == SEPHORA_DATASET:
-        training_data = training_data[:50_000]
-    test_data = test_data[custom_params["pipeline"]["selected"]]
-    if dataset_name == SEPHORA_DATASET:
-        test_data = test_data[:10_000]
-    X_train = training_data.drop(columns=[custom_params["features"]["label"]])
-    y_train = training_data[custom_params["features"]["label"]]
-    X_test = test_data.drop(columns=[custom_params["features"]["label"]])
-    y_test = test_data[custom_params["features"]["label"]]
     for clf_name, clf in classifiers.items():
         log_info(
-            f"TESTING {best_features['best_features']} FOR {clf_name} CLASSIFIER ON {best_vec_method} VECTORIZATION"
+            f"Testing '{best_features['best_features']}' with {clf_name.upper()} on {best_vec_method}"
         )
+
         wandb.init(
-            project="pdiow-model-test",
+            project=WANDB_PROJECT,
             name=f"{clf_name}_{dataset_name}",
             reinit=True,
             config={
-                "classifier": f"{clf_name}",
+                "classifier": clf_name,
                 "use_data": best_features["best_features"],
                 "params": clf.get_params(),
             },
         )
-        log_info("Building pipeline")
+
         pipeline = build_pipeline(
             custom_params,
             dataset_name,
@@ -88,62 +104,60 @@ def run_test_classifiers(path_to_split_data, metrics_file, custom_params, datase
             clf,
             best_vec_method,
         )
-        log_info("Training model")
+
+        log_info("🔧 Fitting pipeline...")
         pipeline.fit(X_train, y_train)
-        log_info("Saving model")
+
+        log_info("Saving trained model")
         joblib.dump(
             pipeline, f"data/models/{dataset_name}/{clf_name}_final_pipeline.pkl"
         )
-        log_info("Predict test")
-        y_pred = pipeline.predict(X_test)
-        log_info("Saving data")
 
+        log_info("Predicting on test set")
+        y_pred = pipeline.predict(X_test)
+
+        log_info("Plotting confusion matrix")
         plot_confusion_matrix(y_test, y_pred)
 
-        test_acc = accuracy_score(y_test, y_pred)
-        test_prec = precision_score(y_test, y_pred, average="weighted", zero_division=0)
-        test_rec = recall_score(y_test, y_pred, average="weighted", zero_division=0)
-        test_f1 = f1_score(y_test, y_pred, average="weighted", zero_division=0)
+        metrics = {
+            "test_accuracy": accuracy_score(y_test, y_pred),
+            "test_precision": precision_score(
+                y_test, y_pred, average="weighted", zero_division=0
+            ),
+            "test_recall": recall_score(
+                y_test, y_pred, average="weighted", zero_division=0
+            ),
+            "test_f1_score": f1_score(
+                y_test, y_pred, average="weighted", zero_division=0
+            ),
+        }
 
-        wandb.log(
-            {
-                "test_accuracy": test_acc,
-                "test_precision": test_prec,
-                "test_recall": test_rec,
-                "test_f1_score": test_f1,
-            }
-        )
+        wandb.log(metrics)
 
         experiment_name = f"{clf_name}_{dataset_name}"
-        new_metrics = {
-            f"{experiment_name}_metrics": {
-                "test accuracy": test_acc,
-                "test precision": test_prec,
-                "test recall": test_rec,
-                "test f1_score": test_f1,
-            }
-        }
+        metrics_key = f"{experiment_name}_metrics"
 
         if os.path.exists(metrics_file):
             with open(metrics_file, "r") as f:
-                existing_data = json.load(f)
+                existing_metrics = json.load(f)
         else:
-            existing_data = {}
+            existing_metrics = {}
 
-        existing_data.update(new_metrics)
+        existing_metrics[metrics_key] = metrics
 
         with open(metrics_file, "w") as f:
-            json.dump(existing_data, f, indent=4)
+            json.dump(existing_metrics, f, indent=4)
 
         wandb.finish()
 
 
 if __name__ == "__main__":
+    os.environ["WANDB_SILENT"] = "true"
+
     path_to_split_data = sys.argv[1]
     metrics_file = sys.argv[2]
     dataset_name = sys.argv[3]
-    os.environ["WANDB_SILENT"] = "true"
 
-    common_params, custom_params = get_params(dataset_name)
+    _, custom_params = get_params(dataset_name)
 
     run_test_classifiers(path_to_split_data, metrics_file, custom_params, dataset_name)

@@ -510,13 +510,13 @@ stages:
     deps:
     - path: data/raw_data/sephora
       hash: md5
-      md5: 1879a37ccfe89870a8e73238e331f4ac.dir
+      md5: 9803c5a804c3f06eeb4373c37a572ca0.dir
       size: 524018363
-      nfiles: 6
+      nfiles: 7
     - path: scripts/process_data.py
       hash: md5
-      md5: 57e01bc594436bd762f1b5423b6b513b
-      size: 2286
+      md5: 10a86f1d2d16d4653f74dec4550eacf6
+      size: 2818
       isexec: true
     params:
       params.yaml:
@@ -557,13 +557,13 @@ stages:
     deps:
     - path: data/raw_data/rt-polarity
       hash: md5
-      md5: d803e9b5c7b9066535bc527dd8f89f79.dir
+      md5: 679f4185d16dab46ec85fe73ed0bb369.dir
       size: 1238458
-      nfiles: 2
+      nfiles: 3
     - path: scripts/process_data.py
       hash: md5
-      md5: 57e01bc594436bd762f1b5423b6b513b
-      size: 2286
+      md5: 10a86f1d2d16d4653f74dec4550eacf6
+      size: 2818
       isexec: true
     params:
       params.yaml:
@@ -586,8 +586,8 @@ stages:
       size: 750192
     - path: notebooks/eda.ipynb
       hash: md5
-      md5: 6bef92adfbfddd5d0a1932793592dffd
-      size: 10635
+      md5: 748709fdc303949d24097a485711e048
+      size: 11058
       isexec: true
     params:
       configs/rt-polarity.yaml:
@@ -603,8 +603,8 @@ stages:
     outs:
     - path: data/notebooks/rt-polarity/eda.ipynb
       hash: md5
-      md5: d5d17f12afa238abe2a3da2676aaa390
-      size: 306166
+      md5: 6140f63b77e55eaf6534e37ad5bc7c73
+      size: 306391
   execute_eda@sephora:
     cmd: "papermill notebooks/eda.ipynb data/notebooks/sephora/eda.ipynb -p dataset
       sephora\n"
@@ -615,8 +615,8 @@ stages:
       size: 35422282
     - path: notebooks/eda.ipynb
       hash: md5
-      md5: 6bef92adfbfddd5d0a1932793592dffd
-      size: 10635
+      md5: 748709fdc303949d24097a485711e048
+      size: 11058
       isexec: true
     params:
       configs/sephora.yaml:
@@ -651,8 +651,8 @@ stages:
     outs:
     - path: data/notebooks/sephora/eda.ipynb
       hash: md5
-      md5: e1b450d2d0b09ee67fb5a7d3984fd4e4
-      size: 610777
+      md5: e1f6fd3f145db82da6fe2acf664e8b27
+      size: 610993
   preprocess_data@rt-polarity:
     cmd: python scripts/preprocess_data.py data/processed_data/rt-polarity.pkl data/preprocessed_data/preprocessed_rt-polarity.pkl
       rt-polarity
@@ -663,8 +663,8 @@ stages:
       size: 1677374
     - path: scripts/preprocess_data.py
       hash: md5
-      md5: fc0366169b2387be369543fcbd0462a4
-      size: 3044
+      md5: be338abd544e77b5d385d17dc38c7736
+      size: 3113
       isexec: true
     outs:
     - path: data/preprocessed_data/preprocessed_rt-polarity.pkl
@@ -681,8 +681,8 @@ stages:
       size: 570771311
     - path: scripts/preprocess_data.py
       hash: md5
-      md5: fc0366169b2387be369543fcbd0462a4
-      size: 3044
+      md5: be338abd544e77b5d385d17dc38c7736
+      size: 3113
       isexec: true
     outs:
     - path: data/preprocessed_data/preprocessed_sephora.pkl
@@ -699,8 +699,8 @@ stages:
       size: 796517
     - path: scripts/split_data.py
       hash: md5
-      md5: 80df4069805fe4df4131e8fe47f7c440
-      size: 1338
+      md5: f23357232ab13c52b31a87a1257ebb47
+      size: 2317
       isexec: true
     params:
       params.yaml:
@@ -727,8 +727,8 @@ stages:
       size: 41644915
     - path: scripts/split_data.py
       hash: md5
-      md5: 80df4069805fe4df4131e8fe47f7c440
-      size: 1338
+      md5: f23357232ab13c52b31a87a1257ebb47
+      size: 2317
       isexec: true
     params:
       params.yaml:
@@ -759,8 +759,8 @@ stages:
       size: 750192
     - path: notebooks/eval_hyperparameters.ipynb
       hash: md5
-      md5: a29b75480ea6feeec16f92460fd976f8
-      size: 22944
+      md5: d8bdfbd2c32165cf92a8b4eea9e84fe5
+      size: 23101
       isexec: true
     params:
       configs/rt-polarity.yaml:
@@ -786,12 +786,12 @@ stages:
     outs:
     - path: data/models/rt-polarity/best_params.json
       hash: md5
-      md5: 6dc0646385657fc49f3ff48a60025644
-      size: 313
+      md5: 95fb5c601446e35f15f5c081af8e4ee1
+      size: 311
     - path: data/notebooks/rt-polarity/eval_hyperparameters.ipynb
       hash: md5
-      md5: 341c2779c763635ccb1b630fb4d424cf
-      size: 213117
+      md5: 7a087cb469e37727e3fdf0bd723bb348
+      size: 213360
   eval_hyperparameters@sephora:
     cmd: "papermill notebooks/eval_hyperparameters.ipynb data/notebooks/sephora/eval_hyperparameters.ipynb
       -p dataset_name sephora\n"
@@ -806,8 +806,8 @@ stages:
       size: 35422282
     - path: notebooks/eval_hyperparameters.ipynb
       hash: md5
-      md5: a29b75480ea6feeec16f92460fd976f8
-      size: 22944
+      md5: d8bdfbd2c32165cf92a8b4eea9e84fe5
+      size: 23101
       isexec: true
     params:
       configs/sephora.yaml:
@@ -866,12 +866,12 @@ stages:
     outs:
     - path: data/models/sephora/best_params.json
       hash: md5
-      md5: 2ad01505e4066edc56739952e0727949
-      size: 313
+      md5: 4f88b76b13ee4530810010cd968a13b5
+      size: 299
     - path: data/notebooks/sephora/eval_hyperparameters.ipynb
       hash: md5
-      md5: f84a77bcad86221327ef0e69754e7ca7
-      size: 210955
+      md5: cd3eee2269bc0244d282d160f349cabb
+      size: 211483
   eval_features@rt-polarity:
     cmd: python scripts/eval_features.py data/train_test_data data/metrics/rt-polarity/feature_metrics.json
       rt-polarity
@@ -886,8 +886,8 @@ stages:
       size: 750192
     - path: scripts/eval_features.py
       hash: md5
-      md5: f50b2a784d3ce3460c0d0d4af42ce14e
-      size: 4465
+      md5: a8360c092ec88f3c49634e2cc97fd843
+      size: 2583
       isexec: true
     params:
       configs/rt-polarity.yaml:
@@ -934,8 +934,8 @@ stages:
       size: 35422282
     - path: scripts/eval_features.py
       hash: md5
-      md5: f50b2a784d3ce3460c0d0d4af42ce14e
-      size: 4465
+      md5: a3f23d5f1eafc7fb350c40bd145a7ec7
+      size: 2591
       isexec: true
     params:
       configs/sephora.yaml:
@@ -1015,8 +1015,8 @@ stages:
       size: 750192
     - path: scripts/eval_vectorizations.py
       hash: md5
-      md5: 0a280d6a5d0351c0f3772094346ba417
-      size: 4012
+      md5: d800350c3775bf81df5f0cf947fe2cc8
+      size: 2276
       isexec: true
     params:
       configs/rt-polarity.yaml:
@@ -1063,8 +1063,8 @@ stages:
       size: 35422282
     - path: scripts/eval_vectorizations.py
       hash: md5
-      md5: 0a280d6a5d0351c0f3772094346ba417
-      size: 4012
+      md5: d800350c3775bf81df5f0cf947fe2cc8
+      size: 2276
       isexec: true
     params:
       configs/sephora.yaml:
@@ -1140,8 +1140,8 @@ stages:
       size: 24
     - path: data/models/rt-polarity/best_params.json
       hash: md5
-      md5: 6dc0646385657fc49f3ff48a60025644
-      size: 313
+      md5: 95fb5c601446e35f15f5c081af8e4ee1
+      size: 311
     - path: data/models/rt-polarity/best_vec_method.json
       hash: md5
       md5: dbc11670edc61ce83823d2f26991fbf8
@@ -1156,26 +1156,26 @@ stages:
       size: 750192
     - path: scripts/test_model.py
       hash: md5
-      md5: 4e5af10c0bf5edbc00ca29fe80102da6
-      size: 5302
+      md5: 773c50b4cb3376d9e104448361f3a2a9
+      size: 5449
       isexec: true
     outs:
     - path: data/metrics/rt-polarity/test_metrics.json
       hash: md5
-      md5: 20a1a583fc606cdc1b82ed76ba5ccafc
+      md5: fdaaafb23b71c5e7b662c571f1766094
       size: 575
     - path: data/models/rt-polarity/dummy_final_pipeline.pkl
       hash: md5
-      md5: ed497f3b62f22dee25ee761dd3bcd9dd
+      md5: 2117ed32bb1a588873ca5ce30cfc61d5
       size: 9337
     - path: data/models/rt-polarity/random_forest_final_pipeline.pkl
       hash: md5
-      md5: f23616a156bc3ad875a9cc7c5bf24759
+      md5: a9eafc0b649f52d04606ecc79f968595
       size: 4527042
     - path: data/models/rt-polarity/svm_final_pipeline.pkl
       hash: md5
-      md5: 265123375ad8d4883dc182b0559b5969
-      size: 795981
+      md5: 142c5282d3e19e4c8cf88c97bb331fef
+      size: 795341
   test_model@sephora:
     cmd: python scripts/test_model.py data/train_test_data data/metrics/sephora/test_metrics.json
       sephora
@@ -1186,8 +1186,8 @@ stages:
       size: 25
     - path: data/models/sephora/best_params.json
       hash: md5
-      md5: 2ad01505e4066edc56739952e0727949
-      size: 313
+      md5: 4f88b76b13ee4530810010cd968a13b5
+      size: 299
     - path: data/models/sephora/best_vec_method.json
       hash: md5
       md5: dbc11670edc61ce83823d2f26991fbf8
@@ -1202,46 +1202,46 @@ stages:
       size: 35422282
     - path: scripts/test_model.py
       hash: md5
-      md5: 4e5af10c0bf5edbc00ca29fe80102da6
-      size: 5302
+      md5: 773c50b4cb3376d9e104448361f3a2a9
+      size: 5449
       isexec: true
     outs:
     - path: data/metrics/sephora/test_metrics.json
       hash: md5
-      md5: 533fc261759b4464cfd9a517b8f47198
-      size: 571
+      md5: b8875c0251685ccad564563269434878
+      size: 569
     - path: data/models/sephora/dummy_final_pipeline.pkl
       hash: md5
-      md5: 5339e89ecfbf886c9a33e93fb4d1dd33
+      md5: b54e537ad18f80c01edd108a592bf2df
       size: 14049
     - path: data/models/sephora/random_forest_final_pipeline.pkl
       hash: md5
-      md5: 3fdd95343935674421fe8d2d9bd33328
-      size: 79608090
+      md5: 92290732ada198c3c963216c03774967
+      size: 10101002
     - path: data/models/sephora/svm_final_pipeline.pkl
       hash: md5
-      md5: 163ce3b6b958c76011827416e90dd213
-      size: 5839185
+      md5: 956a45372dd40d93ae8392231600977b
+      size: 1218049
   summarize_results:
     cmd: python scripts/summarize_results.py data/metrics data/models results/test_results.md
     deps:
     - path: data/metrics
       hash: md5
-      md5: d1fbf4eb9a794408f7b409af66562230.dir
-      size: 3188
-      nfiles: 6
+      md5: e799103ff45175a8b62cf904ff6f6027.dir
+      size: 3186
+      nfiles: 8
     - path: data/models
       hash: md5
-      md5: 909d4c49319d54b359329b21e7bb1063.dir
-      size: 90794421
-      nfiles: 12
+      md5: f77d053b4f6db5322d8b03ea3eaf83fd.dir
+      size: 16665541
+      nfiles: 14
     - path: scripts/summarize_results.py
       hash: md5
-      md5: 0225e41f85a620e8abb30fae561afc54
-      size: 2908
+      md5: 2876b6d39406f1d622fd8d6f1bcc542b
+      size: 3012
       isexec: true
     outs:
     - path: results/test_results.md
       hash: md5
-      md5: 4b3573205c5fbfc3b6b6932bf861b4e5
-      size: 664
+      md5: 2114067df3a5cd9fd76c13325f6f78be
+      size: 647

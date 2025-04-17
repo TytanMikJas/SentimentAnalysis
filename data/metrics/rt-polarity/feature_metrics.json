@@ -1,0 +1,11 @@
+{
+    "avg weighted f1_score of dummy on text for rt-polarity": 0.33400035531867645,
+    "avg weighted f1_score of svm on text for rt-polarity": 0.594700224111077,
+    "avg weighted f1_score of random_forest on text for rt-polarity": 0.5925510996449151,
+    "avg weighted f1_score of dummy on non-text for rt-polarity": 0.33400035531867645,
+    "avg weighted f1_score of svm on non-text for rt-polarity": 0.5259685208260582,
+    "avg weighted f1_score of random_forest on non-text for rt-polarity": 0.5191953759230576,
+    "avg weighted f1_score of dummy on all for rt-polarity": 0.33400035531867645,
+    "avg weighted f1_score of svm on all for rt-polarity": 0.609507296018007,
+    "avg weighted f1_score of random_forest on all for rt-polarity": 0.5949510837131624
+}

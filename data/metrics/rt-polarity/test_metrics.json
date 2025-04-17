@@ -1,0 +1,20 @@
+{
+    "dummy_rt-polarity_metrics": {
+        "test_accuracy": 0.5,
+        "test_precision": 0.25,
+        "test_recall": 0.5,
+        "test_f1_score": 0.33333333333333326
+    },
+    "svm_rt-polarity_metrics": {
+        "test_accuracy": 0.63,
+        "test_precision": 0.6321482347410086,
+        "test_recall": 0.63,
+        "test_f1_score": 0.6284901607941024
+    },
+    "random_forest_rt-polarity_metrics": {
+        "test_accuracy": 0.61375,
+        "test_precision": 0.6145295165218267,
+        "test_recall": 0.61375,
+        "test_f1_score": 0.6130916512628519
+    }
+}

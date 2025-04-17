@@ -1,19 +1,16 @@
 import sys
 import wandb
-from sklearn.metrics import f1_score
+import os
+import json
+from sklearn.ensemble import RandomForestClassifier
 from src.utils import (
     load_train_test_data,
     save_f1_score,
-    plot_confusion_matrix,
     log_info,
     get_params,
 )
 from src.pipeline import build_pipeline
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.model_selection import StratifiedKFold
-import numpy as np
-import os
-import json
+from src.evaluation_utils import evaluate_classifier
 
 
 def run_test_classifiers(path_to_split_data, metrics_file, custom_params, dataset_name):
@@ -30,7 +27,6 @@ def run_test_classifiers(path_to_split_data, metrics_file, custom_params, datase
 
     training_data, _ = load_train_test_data(path_to_split_data, dataset_name)
     training_data = training_data[custom_params["pipeline"]["selected"]]
-    training_data = training_data[0:5_000]
     X = training_data.drop(columns=[custom_params["features"]["label"]])
     y = training_data[custom_params["features"]["label"]]
 
@@ -38,87 +34,39 @@ def run_test_classifiers(path_to_split_data, metrics_file, custom_params, datase
     best_vect = None
 
     for vect_name, vect in vectorizers.items():
-        log_info(
-            f"TESTTING {use_data.upper()} FOR {clf_name.upper()} CLASSIFIER {vect_name.upper()} ON {dataset_name.upper()}"
+        log_info(f"Testing {vect_name} vectorizer with {clf_name} on {dataset_name}")
+
+        avg_f1 = evaluate_classifier(
+            clf=clf,
+            X=X,
+            y=y,
+            use_data=use_data,
+            clf_name=clf_name,
+            dataset_name=dataset_name,
+            label=custom_params["features"]["label"],
+            custom_params=custom_params,
+            build_pipeline_fn=build_pipeline,
+            wandb_project="pdiow-lab-vect-test",
+            wandb_run_name_prefix=vect_name,
         )
-        wandb.init(
-            project="pdiow-lab-vect-test",
-            name=f"{vect_name}_{dataset_name}",
-            reinit=True,
-        )
-
-        skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=1)
-        f1_train_scores = []
-        f1_test_scores = []
-        y_train_true_all = []
-        y_train_pred_all = []
-        y_test_true_all = []
-        y_test_pred_all = []
-
-        for train_idx, test_idx in skf.split(X, y):
-            log_info(
-                f"{use_data} for {clf_name} iteration {dataset_name} {len(f1_train_scores) + 1}/5"
-            )
-            X_train, X_test = X.iloc[train_idx], X.iloc[test_idx]
-            y_train, y_test = y.iloc[train_idx], y.iloc[test_idx]
-
-            pipeline = build_pipeline(
-                custom_params, dataset_name, use_data=use_data, classifier=clf
-            )
-            pipeline.fit(X_train, y_train)
-            y_hat_train = pipeline.predict(X_train)
-            y_hat_test = pipeline.predict(X_test)
-
-            f1_train = f1_score(y_train, y_hat_train, average="weighted")
-            f1_test = f1_score(y_test, y_hat_test, average="weighted")
-
-            f1_train_scores.append(f1_train)
-            f1_test_scores.append(f1_test)
-
-            y_train_true_all.extend(y_train)
-            y_train_pred_all.extend(y_hat_train)
-            y_test_true_all.extend(y_test)
-            y_test_pred_all.extend(y_hat_test)
-
-        avg_f1 = np.mean(f1_test_scores)
 
         if avg_f1 > best_f1_score:
             best_f1_score = avg_f1
             best_vect = vect
 
-        wandb.log(
-            {
-                "avg F1 Score Train": np.mean(f1_train_scores),
-                "avg F1 Score Test": np.mean(f1_test_scores),
-            }
-        )
-
         save_f1_score(
-            np.mean(f1_test_scores),
-            f"{clf_name} on {vect_name} for {dataset_name}",
-            metrics_file,
+            avg_f1, f"{clf_name} on {vect_name} for {dataset_name}", metrics_file
         )
-
-        print(
-            f"{clf_name.upper()} ({vect_name}): Avg F1 = {np.mean(f1_test_scores):.6f}"
-        )
-
-        plot_confusion_matrix(
-            y_train_true_all, y_train_pred_all, y_test_true_all, y_test_pred_all
-        )
-
-        wandb.finish()
 
     with open(f"data/models/{dataset_name}/best_vec_method.json", "w") as f:
         json.dump({"best_vec_method": best_vect}, f)
 
 
 if __name__ == "__main__":
+    os.environ["WANDB_SILENT"] = "true"
     path_to_split_data = sys.argv[1]
     metrics_file = sys.argv[2]
     dataset_name = sys.argv[3]
-    os.environ["WANDB_SILENT"] = "true"
 
     common_params, custom_params = get_params(dataset_name)
-
     run_test_classifiers(path_to_split_data, metrics_file, custom_params, dataset_name)

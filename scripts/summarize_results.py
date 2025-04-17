@@ -6,7 +6,7 @@ from pathlib import Path
 METRICS_FILE_SUFFIX = "_metrics.json"
 PARAMS_FILE = "best_params.json"
 METRICS_TEST_FILE = "test_metrics.json"
-MODELS = ["Dummy", "SVM", "Random Forest"]
+MODELS = ["dummy", "SVM", "Random Forest"]
 
 
 def extract_params(params_path, dataset_key):
@@ -21,10 +21,14 @@ def extract_params(params_path, dataset_key):
 
     if "RandomForest" in model_params:
         rf = model_params["RandomForest"]
-        params["Random Forest"] = f'n_estimators={rf.get("classifier__n_estimators", "")}'
+        params["Random Forest"] = (
+            f"n_estimators={rf.get('classifier__n_estimators', '')}"
+        )
     if "SVM" in model_params:
         svm = model_params["SVM"]
-        params["SVM"] = f'C={svm.get("classifier__C", "")}, kernel={svm.get("classifier__kernel", "")}'
+        params["SVM"] = (
+            f"C={svm.get('classifier__C', '')}, kernel={svm.get('classifier__kernel', '')}"
+        )
 
     return params
 
@@ -34,26 +38,27 @@ def extract_metrics(metrics_path, dataset_key):
 
     with open(metrics_file) as f:
         data = json.load(f)
-
     result = []
     for model in MODELS:
         key = f"{model.lower().replace(' ', '_')}_{dataset_key}_metrics"
         if key in data:
             metrics = data[key]
-            result.append({
-                "model": model,
-                "accuracy": metrics.get("test accuracy", ""),
-                "precision": metrics.get("test precision", ""),
-                "recall": metrics.get("test recall", ""),
-                "f1": metrics.get("test f1_score", "")
-            })
+            result.append(
+                {
+                    "model": model,
+                    "accuracy": metrics.get("test_accuracy", 0),
+                    "precision": metrics.get("test_precision", 0),
+                    "recall": metrics.get("test_recall", 0),
+                    "f1": metrics.get("test_f1_score", 0),
+                }
+            )
     return result
 
 
 def generate_markdown(datasets, all_metrics, all_params, output_path):
     lines = [
         "| Dataset     | Model           | Params          | Accuracy | Precision | Recall | F1 Score |",
-        "|-------------|-----------------|-----------------|----------|-----------|--------|----------|"
+        "|-------------|-----------------|-----------------|----------|-----------|--------|----------|",
     ]
 
     for dataset in datasets:

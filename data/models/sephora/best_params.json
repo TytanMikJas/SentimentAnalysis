@@ -1,0 +1,1 @@
+{"RandomForest": {"classifier__n_estimators": 30, "classifier__min_samples_leaf": 1, "classifier__max_features": null, "classifier__max_depth": 50, "classifier__criterion": "gini"}, "SVM": {"classifier__C": 1.5, "classifier__degree": 3, "classifier__gamma": "scale", "classifier__kernel": "linear"}}
