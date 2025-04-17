@@ -1,5 +1,0 @@
-{
-    "avg weighted f1_score of random_forest on word2vec": 0.5061966808393589,
-    "avg weighted f1_score of random_forest on tfidf": 0.5552782505189873,
-    "avg weighted f1_score of random_forest on bow": 0.5643467252863297
-}
